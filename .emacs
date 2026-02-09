@@ -16,5 +16,10 @@
   '(tool-bar-mode nil)
 )
 
+; https://www.perplexity.ai/search/mac-os-keyboard-insert-bracket-Czg2z_aSQ_uXztTOkzjbVQ
+; make [] and {} under MacOS 
+(setq mac-option-modifier nil
+      mac-command-modifier 'meta)
+
 
 
