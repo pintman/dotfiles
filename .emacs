@@ -5,6 +5,8 @@
 
 (column-number-mode)
 
+(display-line-numbers-mode 1)
+
 ; https://emacs.stackexchange.com/questions/278/how-do-i-display-line-numbers-in-emacs-not-in-the-mode-line
 ; (add-hook 'prog-mode-hook 'display-line-numbers-mode)
 
