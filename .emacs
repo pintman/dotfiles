@@ -29,7 +29,9 @@
 (setq mac-option-modifier nil
       mac-command-modifier 'meta)
 
-
+; https://www.gnu.org/software/emacs/manual/html_mono/ido.html
+(require 'ido)
+(ido-mode t)
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
