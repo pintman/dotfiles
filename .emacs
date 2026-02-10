@@ -1,20 +1,25 @@
 ; Source - https://stackoverflow.com/a/744681
 ; Posted by Bastien Léonard, modified by community. See post 'Timeline' for change history
 ; Retrieved 2026-02-04, License - CC BY-SA 3.0
-(setq inhibit-startup-screen t)
+; (setq inhibit-startup-screen t)
 
 (column-number-mode)
 
 ; https://emacs.stackexchange.com/questions/278/how-do-i-display-line-numbers-in-emacs-not-in-the-mode-line
-(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+; (add-hook 'prog-mode-hook 'display-line-numbers-mode)
 
 ;(tool-bar-mode 0)
 ; Source - https://stackoverflow.com/q/10152287
 ; Posted by Peter, modified by community. See post 'Timeline' for change history
 ; Retrieved 2026-02-09, License - CC BY-SA 3.0
 (custom-set-variables
-  '(tool-bar-mode nil)
-)
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(global-display-line-numbers-mode t)
+ '(inhibit-startup-screen t)
+ '(tool-bar-mode nil))
 
 ; https://www.perplexity.ai/search/mac-os-keyboard-insert-bracket-Czg2z_aSQ_uXztTOkzjbVQ
 ; make [] and {} under MacOS 
@@ -23,3 +28,9 @@
 
 
 
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
