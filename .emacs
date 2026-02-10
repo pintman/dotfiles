@@ -1,3 +1,10 @@
+
+; https://melpa.org/#/getting-started
+(require 'package)
+(add-to-list 'package-archives
+	     '("melpa" . "https://melpa.org/packages/") t)
+(package-initialize)
+
 ; Source - https://stackoverflow.com/a/744681
 ; Posted by Bastien Léonard, modified by community. See post 'Timeline' for change history
 ; Retrieved 2026-02-04, License - CC BY-SA 3.0
