@@ -5,6 +5,9 @@
 	     '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 
+; mit M-x package-install-selected-packages werden die in der Config
+; ausgewählen Pakete (unter package-selected-packages) installiert.
+
 ; Source - https://stackoverflow.com/a/744681
 ; Posted by Bastien Léonard, modified by community. See post 'Timeline' for change history
 ; Retrieved 2026-02-04, License - CC BY-SA 3.0
