@@ -29,7 +29,7 @@
  '(display-line-numbers 'relative)
  '(global-display-line-numbers-mode t)
  '(inhibit-startup-screen t)
- '(package-selected-packages '(plantuml-mode))
+ '(package-selected-packages '(magit plantuml-mode))
  '(tool-bar-mode nil))
 
 ; https://www.perplexity.ai/search/mac-os-keyboard-insert-bracket-Czg2z_aSQ_uXztTOkzjbVQ
