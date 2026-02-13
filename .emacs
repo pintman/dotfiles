@@ -31,7 +31,7 @@
  '(display-line-numbers 'relative)
  '(global-display-line-numbers-mode t)
  '(inhibit-startup-screen t)
- '(package-selected-packages '(magit plantuml-mode))
+ '(package-selected-packages '(gptel magit plantuml-mode))
  '(tool-bar-mode nil))
 
 ; https://www.perplexity.ai/search/mac-os-keyboard-insert-bracket-Czg2z_aSQ_uXztTOkzjbVQ
@@ -53,4 +53,11 @@
 ; mit M-x package-install-selected-packages werden die in der Config
 ; ausgewählen Pakete (unter package-selected-packages) installiert.
 (package-install-selected-packages)
+
+; GPTel
+(gptel-make-ollama
+   "Ollama"
+   :host "localhost:11434"
+   :models '(mistral:latest)
+   :stream t)
 
