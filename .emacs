@@ -55,6 +55,7 @@
 (package-install-selected-packages)
 
 ; GPTel
+; https://gptel.org/manual.html
 (gptel-make-ollama
    "Ollama"
    :host "localhost:11434"
