@@ -83,7 +83,8 @@
     mistralai/ministral-3-3b
     google/gemma-3-4b
     deepseek/deepseek-r1-0528-qwen3-8b
-    starcoder2-7b))
+    starcoder2-7b
+    openai/gpt-oss-20b))
 
 ; configure default model and backend
 (setq
