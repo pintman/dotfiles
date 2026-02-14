@@ -72,17 +72,17 @@
 ;  :stream t
 ;  :models '("mistral-small"))
 
- (gptel-make-openai "LMStudio"
-		 :host "localhost:1234"
-		 :endpoint "/v1/chat/completions"
-		 :protocol "http"
-		 :stream t
-		 :models
-		 '(llama-3.2-3b-instruct
-		   mistralai/ministral-3-3b
-		   google/gemma-3-4b
-		   deepseek/deepseek-r1-0528-qwen3-8b
-		   starcoder2-7b)))
+(gptel-make-openai "LMStudio"
+  :host "localhost:1234"
+  :endpoint "/v1/chat/completions"
+  :protocol "http"
+  :stream t
+  :models
+  '(llama-3.2-3b-instruct
+    mistralai/ministral-3-3b
+    google/gemma-3-4b
+    deepseek/deepseek-r1-0528-qwen3-8b
+    starcoder2-7b)))
 
 ; configure default model and backend
 (setq
