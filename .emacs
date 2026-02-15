@@ -30,6 +30,7 @@
  '(calendar-week-start-day 1)
  '(display-line-numbers 'relative)
  '(global-display-line-numbers-mode t)
+ '(ido-enable-flex-matching t)
  '(inhibit-startup-screen t)
  '(package-selected-packages '(gptel magit plantuml-mode fold-this))
  '(tool-bar-mode nil))
