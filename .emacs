@@ -56,23 +56,15 @@
 
 ; GPTel
 ; https://gptel.org/manual.html
+
+; Ollama
 (gptel-make-ollama
    "Ollama"
    :host "localhost:11434"
    :models '(ministralstral:latest)
    :stream t)
 
-; Github Copilot
-;(gptel-make-gh-copilot "Copilot")
-
-; MistralLeChat
-;(gptel-make-openai "MistralLeChat"  ;Any name you want
-;  :host "api.mistral.ai"
-;  :endpoint "/v1/chat/completions"
-;  :protocol "https"
-;  :stream t
-;  :models '("mistral-small"))
-
+; LMStudio
 (gptel-make-openai "LMStudio"
   :host "localhost:1234"
   :endpoint "/v1/chat/completions"
@@ -86,13 +78,17 @@
     starcoder2-7b
     openai/gpt-oss-20b))
 
-; configure default model and backend
-(setq
- gptel-model 'MistralLeChat
- gptel-backend (gptel-make-openai "MistralLeChat"
+; MistralLeChat
+(gptel-make-openai "MistralLeChat"
 		 :host "api.mistral.ai"
 		 :endpoint "/v1/chat/completions"
 		 :protocol "https"
 		 :stream t
-		 :models '("mistral-small" "mistral-medium" "mistral-large")))
+		 :models '("mistral-small" "mistral-medium" "mistral-large"))
+
+; configure default model and backend
+(setq
+ gptel-model 'MistralLeChat
+ gptel-backend ; Github Copilot
+ (gptel-make-gh-copilot "Copilot"))
 
