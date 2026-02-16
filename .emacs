@@ -11,19 +11,17 @@
 ; (setq inhibit-startup-screen t)
 
 (column-number-mode)
-
 (display-line-numbers-mode 1)
 
 ; change default settings (font, size) on Mac
 (if (eq system-type 'darwin)
     (setq default-frame-alist
 	  '((font . "Menlo-14") (width . 150))))
+; https://www.perplexity.ai/search/mac-os-keyboard-insert-bracket-Czg2z_aSQ_uXztTOkzjbVQ
+; make [] and {} under MacOS 
+(setq mac-option-modifier nil
+      mac-command-modifier 'meta)
 
-
-; https://emacs.stackexchange.com/questions/278/how-do-i-display-line-numbers-in-emacs-not-in-the-mode-line
-; (add-hook 'prog-mode-hook 'display-line-numbers-mode)
-
-;(tool-bar-mode 0)
 ; Source - https://stackoverflow.com/q/10152287
 ; Posted by Peter, modified by community. See post 'Timeline' for change history
 ; Retrieved 2026-02-09, License - CC BY-SA 3.0
@@ -40,11 +38,6 @@
  '(inhibit-startup-screen t)
  '(package-selected-packages '(gptel magit plantuml-mode fold-this))
  '(tool-bar-mode nil))
-
-; https://www.perplexity.ai/search/mac-os-keyboard-insert-bracket-Czg2z_aSQ_uXztTOkzjbVQ
-; make [] and {} under MacOS 
-(setq mac-option-modifier nil
-      mac-command-modifier 'meta)
 
 ; https://www.gnu.org/software/emacs/manual/html_mono/ido.html
 (require 'ido)
