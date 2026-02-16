@@ -14,6 +14,12 @@
 
 (display-line-numbers-mode 1)
 
+; change default settings (font, size) on Mac
+(if (eq system-type 'darwin)
+    (setq default-frame-alist
+	  '((font . "Menlo-14") (width . 150))))
+
+
 ; https://emacs.stackexchange.com/questions/278/how-do-i-display-line-numbers-in-emacs-not-in-the-mode-line
 ; (add-hook 'prog-mode-hook 'display-line-numbers-mode)
 
