@@ -88,7 +88,7 @@
 
 ; configure default model and backend
 (setq
- gptel-model 'MistralLeChat
+ gptel-model 'claude-sonnet-4.5
  gptel-backend ; Github Copilot
  (gptel-make-gh-copilot "Copilot"))
 
