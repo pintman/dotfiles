@@ -80,11 +80,12 @@
 
 ; MistralLeChat
 (gptel-make-openai "MistralLeChat"
-		 :host "api.mistral.ai"
-		 :endpoint "/v1/chat/completions"
-		 :protocol "https"
-		 :stream t
-		 :models '("mistral-small" "mistral-medium" "mistral-large"))
+  :host "api.mistral.ai"
+  :endpoint "/v1/chat/completions"
+  :key #'gptel-api-key-from-auth-source
+  :protocol "https"
+  :stream t
+  :models '("mistral-small" "mistral-medium" "mistral-large"))
 
 ; OpenRouter
 ; https://gptel.org/manual.html#orgf4cd09b
@@ -92,6 +93,7 @@
 (gptel-make-openai "OpenRouter"
   :host "openrouter.ai"
   :endpoint "/api/v1/chat/completions"
+  :key #'gptel-api-key-from-auth-source
   :stream t
   :models '(openai/gpt-3.5-turbo
             mistralai/mixtral-8x7b-instruct
