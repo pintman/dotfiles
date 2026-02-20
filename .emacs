@@ -86,6 +86,20 @@
 		 :stream t
 		 :models '("mistral-small" "mistral-medium" "mistral-large"))
 
+; OpenRouter
+; https://gptel.org/manual.html#orgf4cd09b
+;; OpenRouter offers an OpenAI compatible API
+(gptel-make-openai "OpenRouter"
+  :host "openrouter.ai"
+  :endpoint "/api/v1/chat/completions"
+  :stream t
+  :models '(openai/gpt-3.5-turbo
+            mistralai/mixtral-8x7b-instruct
+            meta-llama/codellama-34b-instruct
+            codellama/codellama-70b-instruct
+            google/palm-2-codechat-bison-32k
+            google/gemini-pro))
+
 ; configure default model and backend
 (setq
  gptel-model 'claude-sonnet-4.5
