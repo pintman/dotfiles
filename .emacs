@@ -97,8 +97,10 @@
             mistralai/mixtral-8x7b-instruct
             meta-llama/codellama-34b-instruct
             codellama/codellama-70b-instruct
-            google/palm-2-codechat-bison-32k
-            google/gemini-pro))
+            google/gemini-pro
+	    deepseek/deepseek-r1-0528:free
+	    deepseek/deepseek-chat-v3.1
+	    google/gemini-2.5-flash-lite))
 
 ; configure default model and backend
 (setq
