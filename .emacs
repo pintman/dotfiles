@@ -99,6 +99,7 @@
             mistralai/mixtral-8x7b-instruct
             meta-llama/codellama-34b-instruct
 	    meta-llama/llama-3.3-70b-instruct:free
+	    minimax/minimax-m2.5
             codellama/codellama-70b-instruct
             google/gemini-pro
 	    deepseek/deepseek-chat-v3.1
