@@ -102,7 +102,8 @@
             google/gemini-pro
 	    deepseek/deepseek-r1-0528:free
 	    deepseek/deepseek-chat-v3.1
-	    google/gemini-2.5-flash-lite))
+	    google/gemini-2.5-flash-lite
+	    arcee-ai/trinity-large-preview:free))
 
 ; configure default model and backend
 (setq
