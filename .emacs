@@ -98,9 +98,9 @@
   :models '(openai/gpt-3.5-turbo
             mistralai/mixtral-8x7b-instruct
             meta-llama/codellama-34b-instruct
+	    meta-llama/llama-3.3-70b-instruct:free
             codellama/codellama-70b-instruct
             google/gemini-pro
-	    deepseek/deepseek-r1-0528:free
 	    deepseek/deepseek-chat-v3.1
 	    google/gemini-2.5-flash-lite
 	    arcee-ai/trinity-large-preview:free))
