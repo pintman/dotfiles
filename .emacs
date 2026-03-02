@@ -112,3 +112,6 @@
  gptel-backend ; Github Copilot
  (gptel-make-gh-copilot "Copilot"))
 
+; keyboard remapping
+(global-set-key (kbd "S-SPC") 'dabbrev-expand)
+
