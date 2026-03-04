@@ -116,3 +116,6 @@
 ; keyboard remapping
 (global-set-key (kbd "S-SPC") 'dabbrev-expand)
 
+; show current time in modeline
+(display-time)
+
