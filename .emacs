@@ -33,6 +33,7 @@
  '(calendar-date-style 'european)
  '(calendar-week-start-day 1)
  '(compile-command "python3 -u ")
+ '(dired-listing-switches "-alh")
  '(display-line-numbers 'relative)
  '(display-time-24hr-format t)
  '(global-display-line-numbers-mode t)
