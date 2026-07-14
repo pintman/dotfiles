@@ -39,7 +39,7 @@
  '(global-display-line-numbers-mode t)
  '(ido-enable-flex-matching t)
  '(inhibit-startup-screen t)
- '(package-selected-packages '(markdown-mode gptel magit plantuml-mode fold-this))
+ '(package-selected-packages '(ement fold-this gptel magit markdown-mode plantuml-mode))
  '(tool-bar-mode nil))
 
 ; https://www.gnu.org/software/emacs/manual/html_mono/ido.html
