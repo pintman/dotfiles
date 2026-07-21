@@ -324,6 +324,15 @@ Vor der Ausgabe prüfen:
 
 ---
 
+## Nach der Erstellung
+
+Sobald die Testatkarte fertig erstellt und ausgegeben wurde, frage den Nutzer, ob mit dem
+Skill `testat-vorabnahme` (gleicher Ordner) ein passender Selbstcheck-Prompt zu dieser
+Testatkarte erstellt werden soll (Meta-Prompt, mit dem Schüler/Auszubildende in einem
+beliebigen KI-Chat selbst prüfen können, ob sie testat-reif sind).
+
+---
+
 ## Abhängigkeiten
 
 - `docx` npm-Paket: `npm install -g docx`
