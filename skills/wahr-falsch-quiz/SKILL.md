@@ -81,56 +81,43 @@ a) Wahr
 b) Falsch
 ```
 
-#### Ansatz: python-docx
+#### Ansatz: Skript [`scripts/generate.py`](scripts/generate.py)
 
-Falls `python-docx` noch nicht installiert ist:
-```bash
-pip install python-docx --quiet
-```
-(Falls das System eine "externally-managed-environment"-Fehlermeldung zeigt, zusätzlich `--break-system-packages` anhängen oder eine virtuelle Umgebung nutzen.)
+Das Skript liest die Aussagen (Text + Wahr/Falsch + optionale Erklärung) aus einer
+JSON-Konfigurationsdatei nach dem Schema von [`example_config.json`](example_config.json)
+– der Python-Code selbst muss dafür nicht verändert werden.
 
-#### Python-Skript
-
-```python
-from docx import Document
-from docx.shared import Pt
-
-aussagen = ["Aussage 1...", "Aussage 2...", ...]  # Liste der generierten Aussagen
-
-intro = (
-    "Beurteile die Korrektheit der folgenden Aussagen. "
-    "Für jede korrekte Antwort gibt es einen Punkt, für jede falsche Antwort gibt es einen Minuspunkt. "
-    "Durch den Abzug können nicht weniger als 0 Punkte in dieser Aufgabe erzielt werden. "
-    "Jede nicht oder nicht eindeutig gekennzeichnete Aussage ergibt 0 Punkte. "
-    "Rate nicht."
-)
-
-doc = Document()
-
-# Standardschriftart setzen
-style = doc.styles['Normal']
-style.font.name = 'Calibri'
-style.font.size = Pt(11)
-
-# Einleitungstext
-doc.add_paragraph(intro)
-doc.add_paragraph("")  # Leerzeile
-
-# Fragen mit Antwortoptionen
-for i, aussage in enumerate(aussagen, start=1):
-    doc.add_paragraph(f"{i}. {aussage}")
-    doc.add_paragraph("a) Wahr")
-    doc.add_paragraph("b) Falsch")
-    doc.add_paragraph("")  # Leerzeile zwischen den Fragen
-
-output_path = "quiz_THEMA_NNfragen.docx"
-doc.save(output_path)
-print(f"Gespeichert: {output_path}")
-```
+Vorgehen:
+1. JSON-Konfiguration nach dem Schema unten schreiben (siehe Abschnitt "Konfigurationsschema").
+2. Skript ausführen (falls `python-docx` fehlt, in einer temporären virtuellen Umgebung installieren):
+   ```bash
+   python3 -m venv /tmp/wahr_falsch_quiz_venv
+   /tmp/wahr_falsch_quiz_venv/bin/pip install --quiet python-docx
+   /tmp/wahr_falsch_quiz_venv/bin/python scripts/generate.py --config config.json
+   ```
+   - `--output pfad.docx` überschreibt optional das `output`-Feld aus der Config.
+   - `--variante schueler|lehrer|beide` steuert, welche Version(en) erzeugt werden
+     (Standard: `lehrer`, siehe Abschnitt "Lehrerversion" unten).
 
 **Wichtig:**
-- Den Dateinamen (`quiz_THEMA_NNfragen.docx`) mit dem tatsächlichen Thema und der Anzahl der Fragen befüllen.
-- Standardmäßig im aktuellen Arbeitsverzeichnis speichern. Falls der Nutzer einen anderen Speicherort nennt oder im aktuellen Verzeichnis kein sinnvoller Ablageort ist, vorher nachfragen.
+- Den Ausgabepfad (`output` in der Config bzw. `quiz_THEMA_NNfragen.docx`) mit dem
+  tatsächlichen Thema und der Anzahl der Fragen befüllen.
+- Standardmäßig im aktuellen Arbeitsverzeichnis speichern. Falls der Nutzer einen anderen
+  Speicherort nennt oder im aktuellen Verzeichnis kein sinnvoller Ablageort ist, vorher nachfragen.
+
+### Konfigurationsschema
+
+Die Config ist ein JSON-Objekt mit folgenden Feldern:
+
+| Feld | Pflicht | Beschreibung |
+|---|---|---|
+| `output` | ja | Ausgabepfad der .docx-Datei |
+| `aussagen` | ja | Liste von `{"text": str, "antwort": "wahr"\|"falsch", "erklaerung": str}` |
+
+`erklaerung` ist pro Aussage optional, aber empfohlen – sie wird für die Lösungstabelle im
+Chat (Schritt 4) verwendet und fließt nicht in das Docx selbst ein.
+
+Referenz-Config mit vollständigem Beispiel: [`example_config.json`](example_config.json).
 
 ### Schritt 4: Lösungsblatt im Chat ausgeben
 
@@ -146,16 +133,22 @@ Der Nutzer bevorzugt für die eigene Kontrolle/Vorbereitung eine **Lehrer-Lösun
 - `[w]` für wahre Aussagen
 - `[f]` für falsche Aussagen
 
-Format je Aussage: `{i}. [w] {Aussage}` bzw. `{i}. [f] {Aussage}` (Präfix direkt nach der Nummerierung, vor dem Aussagetext).
+Das Skript übernimmt das automatisch über den `antwort`-Wert jeder Aussage in der Config
+(kein manuelles Einfügen der Präfixe nötig). Gesteuert wird das über `--variante`:
+
+| `--variante` | Erzeugt | Präfix im Text |
+|---|---|---|
+| `lehrer` (Standard) | eine Datei unter `output` | ja, `[w]`/`[f]` |
+| `schueler` | eine Datei unter `output` | nein |
+| `beide` | `output` (Schülerversion) + `output` mit `_LOESUNG`-Suffix (Lehrerversion) | nur bei der `_LOESUNG`-Datei |
 
 Wichtig:
-- Diese Version ist **nicht** für den direkten Microsoft-Forms-Import an Schüler geeignet, da die Präfixe sonst als Teil der Frage übernommen würden. Sie dient nur der eigenen Übersicht des Lehrers, der die Präfixe vor der Verteilung selbst entfernt.
-- Dateiname entsprechend kennzeichnen, z. B. `quiz_[thema]_[anzahl]fragen_LOESUNG.docx`.
-- Wenn der Nutzer nicht explizit angibt, ob er die reine Schülerversion oder die Lehrerversion mit Präfix möchte: Standardmäßig die Lehrerversion mit `[w]`/`[f]`-Präfix erstellen, da dies die vom Nutzer bevorzugte Arbeitsweise ist. Auf Wunsch zusätzlich die präfixfreie Schülerversion parallel bereitstellen.
+- Die Lehrerversion ist **nicht** für den direkten Microsoft-Forms-Import an Schüler geeignet, da die Präfixe sonst als Teil der Frage übernommen würden. Sie dient nur der eigenen Übersicht des Lehrers, der die Präfixe vor der Verteilung selbst entfernt.
+- Wenn der Nutzer nicht explizit angibt, ob er die reine Schülerversion oder die Lehrerversion mit Präfix möchte: Standardmäßig `--variante lehrer` verwenden, da dies die vom Nutzer bevorzugte Arbeitsweise ist. Auf Wunsch `--variante beide` für beide Dateien parallel.
 
 ### Schritt 5: Ausgabe
 
-- Dateiname: `quiz_[thema]_[anzahl]fragen.docx`
+- Dateiname: `quiz_[thema]_[anzahl]fragen.docx` (siehe `output` in der Config)
 - Speicherpfad: aktuelles Arbeitsverzeichnis (siehe Hinweis in Schritt 3)
 - Dem Nutzer mitteilen:
   - Anzahl der Aussagen und Wahr/Falsch-Verteilung

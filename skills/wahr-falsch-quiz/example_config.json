@@ -1,0 +1,25 @@
+{
+  "output": "quiz_netzwerktechnik_15fragen.docx",
+  "aussagen": [
+    {
+      "text": "TCP ist ein verbindungsorientiertes Protokoll, das vor der Datenübertragung eine Verbindung aufbaut.",
+      "antwort": "wahr",
+      "erklaerung": "TCP nutzt einen Drei-Wege-Handshake, bevor Daten übertragen werden."
+    },
+    {
+      "text": "UDP garantiert, dass Pakete in der gesendeten Reihenfolge beim Empfänger ankommen.",
+      "antwort": "falsch",
+      "erklaerung": "UDP ist verbindungslos und übernimmt weder Reihenfolge- noch Zustellgarantien."
+    },
+    {
+      "text": "Ein Switch arbeitet auf der Vermittlungsschicht (Schicht 3) des OSI-Modells.",
+      "antwort": "falsch",
+      "erklaerung": "Klassische Switches arbeiten auf der Sicherungsschicht (Schicht 2) und leiten anhand von MAC-Adressen weiter."
+    },
+    {
+      "text": "DHCP weist Endgeräten automatisch IP-Adressen aus einem konfigurierten Adresspool zu.",
+      "antwort": "wahr",
+      "erklaerung": "Das ist die Kernaufgabe von DHCP (Dynamic Host Configuration Protocol)."
+    }
+  ]
+}
