@@ -20,7 +20,7 @@ Bevor irgendetwas gefragt wird: im aktuellen Arbeitsverzeichnis (und im übergeo
 Verzeichnis, falls das Arbeitsverzeichnis wie ein Unterordner eines persönlichen
 Workspace wirkt) nach einem Ordner oder einer Datei mit ähnlichem Namen suchen
 (`ABOUT_ME`, `ABOUT_ME.md`, `about-me/`, `ABOUT ME/`). Falls vorhanden, vollständig
-lesen.
+lesen. Falls nicht vorhanden, fragen, ob an anderer Stelle gesucht werden soll.
 
 Damit:
 - Intake-Fragen überspringen bzw. vorausfüllen, deren Antwort dort bereits feststeht
