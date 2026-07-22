@@ -1,6 +1,6 @@
 ---
 name: youtube
-description: "Ermittelt Titel und Beschreibung von YouTube-Videos oder findet ein bestimmtes Video innerhalb einer YouTube-Playlist - komplett ohne YouTube-API-Key, nur curl + Python-Stdlib. Nutze diesen Skill, wenn ein YouTube-Link vorkommt und daraus eine inhaltliche Zusammenfassung erstellt werden soll (z. B. für eine Notiz), oder wenn eine Notiz nur auf eine Playlist verweist und das gemeinte Video darin per Stichwort/Titel gefunden werden muss. Trigger: \"YouTube-Link\", \"Video zusammenfassen\", \"was ist in dem Video\", \"in der Playlist suchen\", \"welches Video ist gemeint\"."
+description: "Ermittelt Titel und Beschreibung von YouTube-Videos oder findet ein bestimmtes Video innerhalb einer YouTube-Playlist. Trigger: ein YouTube-Link kommt vor, \"YouTube-Link\", \"Video zusammenfassen\", \"was ist in dem Video\", \"in der Playlist suchen\", \"welches Video ist gemeint\"."
 ---
 
 # YouTube-Skill
