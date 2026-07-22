@@ -147,10 +147,3 @@ Sobald die Testatkarte fertig erstellt und ausgegeben wurde, frage den Nutzer, o
 Skill `testat-vorabnahme` (gleicher Ordner) ein passender Selbstcheck-Prompt zu dieser
 Testatkarte erstellt werden soll (Meta-Prompt, mit dem Schüler/Auszubildende in einem
 beliebigen KI-Chat selbst prüfen können, ob sie testat-reif sind).
-
----
-
-## Abhängigkeiten
-
-- `python-docx`: `pip install python-docx`
-
