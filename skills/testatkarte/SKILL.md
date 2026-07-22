@@ -58,7 +58,20 @@ Typische Kategorien:
 
 ### Schritt 3: Dokument erstellen
 
-Verwende das docx-Skill. Installiere falls nötig: `npm install -g docx`
+Nutze das Python-Skript [`generate.py`](generate.py). Es liest seinen kompletten Inhalt
+(Meilensteine + Zusatzinformationen) aus einer JSON-Konfigurationsdatei – der Python-Code
+selbst muss dafür nicht verändert werden.
+
+Vorgehen:
+1. JSON-Konfiguration nach dem Schema von [`example_config.json`](example_config.json) schreiben
+   (siehe Abschnitt "Konfigurationsschema" unten).
+2. Skript ausführen (falls `python-docx` fehlt, in einer temporären virtuellen Umgebung installieren):
+   ```bash
+   python3 -m venv /tmp/testatkarte_venv
+   /tmp/testatkarte_venv/bin/pip install --quiet python-docx
+   /tmp/testatkarte_venv/bin/python generate.py --config config.json
+   ```
+   `--output pfad.docx` überschreibt optional das `output`-Feld aus der Config.
 
 **Seitenaufbau:**
 - **A4** (11906 × 16838 DXA), Ränder 1440 DXA (1 Zoll) rundherum
@@ -66,8 +79,8 @@ Verwende das docx-Skill. Installiere falls nötig: `npm install -g docx`
 - **Seiten 2–4**: Zusatzinformationen mit Abschnitten
 
 **Farbschema** (schwarz-weiß, druckfreundlich):
-- Tabellenheader-Hintergrund: `000000` (schwarz)
-- Tabellenheader-Schrift: `FFFFFF` (weiß)
+- Tabellenheader-Hintergrund: `FFFFFF` (weiß)
+- Tabellenheader-Schrift: `000000` (schwarz)
 - Ungerade Zeilen: `EEEEEE` (hellgrau)
 - Gerade Zeilen: `FFFFFF` (weiß)
 - Überschriften-Farbe: `000000` (schwarz)
@@ -76,239 +89,44 @@ Verwende das docx-Skill. Installiere falls nötig: `npm install -g docx`
 
 ---
 
-## Code-Template
+## Konfigurationsschema
 
-```javascript
-const {
-  Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
-  AlignmentType, HeadingLevel, BorderStyle, WidthType, ShadingType,
-  VerticalAlign, PageBreak, LevelFormat
-} = require('docx');
-const fs = require('fs');
+Die Config ist ein JSON-Objekt mit folgenden Feldern:
 
-// ── Konstanten ──────────────────────────────────────────────
-const PAGE_W = 11906;   // A4 Breite in DXA
-const PAGE_H = 16838;   // A4 Höhe in DXA
-const MARGIN  = 1440;   // 1 Zoll Rand
-const CONTENT_W = PAGE_W - 2 * MARGIN;  // 9026 DXA
+| Feld | Pflicht | Beschreibung |
+|---|---|---|
+| `thema` | ja | Thema, erscheint im Titel |
+| `klasse` | ja | Zielgruppe/Klasse, erscheint im Titel |
+| `einleitung` | ja | Einleitungstext auf Seite 1 |
+| `meilensteine` | ja | Liste von `{"nr": int, "text": str}` |
+| `output` | ja | Ausgabepfad der .docx-Datei |
+| `zusatzinfos` | nein | Liste von Blocks für Seiten 2–4 (siehe unten) |
 
-const COLOR_HEADER_BG   = '000000'; // schwarz
-const COLOR_HEADER_TEXT = 'FFFFFF'; // weiß
-const COLOR_ROW_ODD     = 'EEEEEE'; // hellgrau
-const COLOR_ROW_EVEN    = 'FFFFFF'; // weiß
-const COLOR_BORDER      = '000000'; // schwarz
-const COLOR_TITLE       = '000000'; // schwarz
+**Block-Typen für `zusatzinfos`** (jeder Block ist ein Objekt mit `"type"`):
 
-const border = { style: BorderStyle.SINGLE, size: 1, color: COLOR_BORDER };
-const borders = { top: border, bottom: border, left: border, right: border };
+- `{"type": "heading", "level": 1|2|3, "text": "..."}` – Überschrift
+- `{"type": "paragraph", "text": "...", "center": bool, "bold": bool, "italic": bool, "size": int, "before": int, "after": int}` – Fließtext (nur `text` ist Pflicht)
+- `{"type": "code", "lines": ["zeile1", "zeile2", ...]}` – Codeblock, jede Zeile eigener Paragraph mit grauem Hintergrund (Courier New)
+- `{"type": "prompt", "lines": ["...", ...]}` – kursive LLM-Prompt-Zeilen
+- `{"type": "classdiagram", "title": "...", "attributes": ["+ attr: Typ", ...], "methods": ["+ methode(): void", ...]}` – UML-artiges Klassendiagramm als Tabelle
+- `{"type": "spacer"}` – Leerzeile
+- `{"type": "pagebreak"}` – Seitenumbruch
 
-// ── Hilfsfunktionen ─────────────────────────────────────────
-function headerCell(text, width) {
-  return new TableCell({
-    borders,
-    width: { size: width, type: WidthType.DXA },
-    shading: { fill: COLOR_HEADER_BG, type: ShadingType.CLEAR },
-    margins: { top: 80, bottom: 80, left: 120, right: 120 },
-    verticalAlign: VerticalAlign.CENTER,
-    children: [new Paragraph({
-      alignment: AlignmentType.CENTER,
-      children: [new TextRun({ text, bold: true, color: COLOR_HEADER_TEXT, size: 22, font: 'Arial' })]
-    })]
-  });
-}
-
-function dataCell(text, width, isOdd, bold = false, wrap = true) {
-  return new TableCell({
-    borders,
-    width: { size: width, type: WidthType.DXA },
-    shading: { fill: isOdd ? COLOR_ROW_ODD : COLOR_ROW_EVEN, type: ShadingType.CLEAR },
-    margins: { top: 80, bottom: 80, left: 120, right: 120 },
-    verticalAlign: VerticalAlign.CENTER,
-    children: [new Paragraph({
-      children: [new TextRun({ text, bold, size: 22, font: 'Arial' })]
-    })]
-  });
-}
-
-function heading(text, level = HeadingLevel.HEADING_1) {
-  return new Paragraph({
-    heading: level,
-    children: [new TextRun({ text, font: 'Arial' })]
-  });
-}
-
-function para(text, opts = {}) {
-  return new Paragraph({
-    alignment: opts.center ? AlignmentType.CENTER : AlignmentType.LEFT,
-    spacing: { before: opts.spaceBefore || 0, after: opts.spaceAfter || 120 },
-    children: [new TextRun({ text, font: 'Arial', size: opts.size || 22, bold: opts.bold || false, italics: opts.italic || false })]
-  });
-}
-
-// ── MEILENSTEINE (anpassen!) ─────────────────────────────────
-const THEMA = 'THEMA';
-const KLASSE = 'KLASSE';  // z.B. ITA, FIA
-const EINLEITUNG = 'Bearbeite nacheinander die folgenden Meilensteine. Lasse jeden Meilenstein von einem Fachlehrer abzeichnen, sobald du ihn erfolgreich absolviert hast. Während der Abnahme werden ggf. kleine Fehler eingebaut, die korrigiert werden müssen. Letzter Abnahmezeitpunkt: 20 Minuten vor Stundenende. Es sind maximal 2 Meilensteine pro Sitzung möglich.';
-
-const MEILENSTEINE = [
-  // { nr: 1, text: "Aufgabenbeschreibung..." },
-  // ... weitere Meilensteine
-];
-
-// ── SPALTENBREITEN ───────────────────────────────────────────
-const COL_NR     = 600;
-const COL_TESTAT = 1800;
-const COL_TEXT   = CONTENT_W - COL_NR - COL_TESTAT;  // Rest
-
-// ── SEITE 1: Meilensteintabelle ──────────────────────────────
-const meilensteinRows = MEILENSTEINE.map((m, i) => {
-  const isOdd = i % 2 === 0;
-  return new TableRow({
-    children: [
-      dataCell(String(m.nr), COL_NR, isOdd, true),
-      dataCell(m.text, COL_TEXT, isOdd),
-      dataCell('', COL_TESTAT, isOdd),
-    ]
-  });
-});
-
-const meilensteinTable = new Table({
-  width: { size: CONTENT_W, type: WidthType.DXA },
-  columnWidths: [COL_NR, COL_TEXT, COL_TESTAT],
-  rows: [
-    new TableRow({
-      tableHeader: true,
-      children: [
-        headerCell('Nr.', COL_NR),
-        headerCell('Meilenstein', COL_TEXT),
-        headerCell('Testat, Datum', COL_TESTAT),
-      ]
-    }),
-    ...meilensteinRows
-  ]
-});
-
-// ── NAMEZEILE ────────────────────────────────────────────────
-const nameBorder = { style: BorderStyle.SINGLE, size: 1, color: COLOR_BORDER };
-const nameBorders = { top: nameBorder, bottom: nameBorder, left: nameBorder, right: nameBorder };
-
-const nameTable = new Table({
-  width: { size: CONTENT_W, type: WidthType.DXA },
-  columnWidths: [1800, CONTENT_W - 1800],
-  rows: [new TableRow({
-    children: [
-      new TableCell({
-        borders: nameBorders,
-        width: { size: 2200, type: WidthType.DXA },
-        margins: { top: 80, bottom: 80, left: 120, right: 120 },
-        children: [new Paragraph({ children: [new TextRun({ text: 'Name:', bold: true, font: 'Arial', size: 22 })] })]
-      }),
-      new TableCell({
-        borders: nameBorders,
-        width: { size: CONTENT_W - 1800, type: WidthType.DXA },
-        margins: { top: 80, bottom: 80, left: 120, right: 120 },
-        children: [new Paragraph({ children: [new TextRun({ text: '', font: 'Arial', size: 22 })] })]
-      }),
-    ]
-  })]
-});
-
-// ── SEITEN 2-4: Zusatzinformationen ──────────────────────────
-// Hier kommt das themenspezifische Referenzmaterial rein.
-// Beispiel-Struktur (anpassen!):
-const zusatzSeiten = [
-  new Paragraph({ children: [new PageBreak()] }),
-  heading('Zusatzinformationen'),
-  // ... Abschnitte mit para(), heading(), Tabellen, Codeblöcken etc.
-];
-
-// ── DOKUMENT ZUSAMMENBAUEN ───────────────────────────────────
-const doc = new Document({
-  styles: {
-    default: { document: { run: { font: 'Arial', size: 22 } } },
-    paragraphStyles: [
-      {
-        id: 'Heading1', name: 'Heading 1', basedOn: 'Normal', next: 'Normal', quickFormat: true,
-        run: { size: 28, bold: true, font: 'Arial', color: COLOR_TITLE },
-        paragraph: { spacing: { before: 240, after: 120 }, outlineLevel: 0 }
-      },
-      {
-        id: 'Heading2', name: 'Heading 2', basedOn: 'Normal', next: 'Normal', quickFormat: true,
-        run: { size: 24, bold: true, font: 'Arial', color: COLOR_TITLE },
-        paragraph: { spacing: { before: 180, after: 80 }, outlineLevel: 1 }
-      },
-      {
-        id: 'Heading3', name: 'Heading 3', basedOn: 'Normal', next: 'Normal', quickFormat: true,
-        run: { size: 22, bold: true, font: 'Arial' },
-        paragraph: { spacing: { before: 120, after: 60 }, outlineLevel: 2 }
-      },
-    ]
-  },
-  sections: [{
-    properties: {
-      page: {
-        size: { width: PAGE_W, height: PAGE_H },
-        margin: { top: MARGIN, right: MARGIN, bottom: MARGIN, left: MARGIN }
-      }
-    },
-    children: [
-      nameTable,
-      para(''),
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        spacing: { before: 0, after: 120 },
-        children: [new TextRun({ text: `Testatkarte – ${THEMA} – ${KLASSE}`, bold: true, size: 32, font: 'Arial', color: COLOR_TITLE })]
-      }),
-      para(''),
-      para(EINLEITUNG, { size: 22, spaceAfter: 200 }),
-      meilensteinTable,
-      ...zusatzSeiten,
-    ]
-  }]
-});
-
-Packer.toBuffer(doc).then(buf => {
-  fs.writeFileSync('/mnt/user-data/outputs/testatkarte.docx', buf);
-  console.log('Testatkarte erstellt!');
-});
-```
+Referenz-Config mit vollständigem Beispiel ("LEDs – ITA"): [`example_config.json`](example_config.json).
+Für eine neue Testatkarte diese Datei als Vorlage kopieren und Felder/Blocks anpassen.
 
 ---
 
 ## Zusatzinformationen gestalten (Seiten 2–4)
 
-Die Zusatzinformationen sollen Schülern helfen, die Meilensteine zu lösen. Typische Abschnitte:
+Die Zusatzinformationen sollen Schülern helfen, die Meilensteine zu lösen. Typische Abschnitte,
+jeweils als Blocks in `zusatzinfos` (siehe Konfigurationsschema oben):
 
-### Klassendiagramme / Strukturdiagramme
-Verwende Tabellen, um UML-Klassendiagramme nachzubilden:
-```
-| KlassenName       |
-|-------------------|
-| + attribut: Typ   |
-| + methode(): void |
-```
-
-### Codebeispiele
-Verwende `Courier New`-Schrift (Monospace) für Code-Abschnitte:
-```javascript
-new TextRun({ text: 'code hier', font: 'Courier New', size: 22 })
-```
-Füge jede Code-Zeile als separaten Paragraph mit grauem Hintergrund ein:
-```javascript
-new Paragraph({
-  shading: { fill: 'F0F0F0', type: ShadingType.CLEAR },
-  children: [new TextRun({ text: 'from gpiozero import LED', font: 'Courier New', size: 22 })]
-})
-```
-
-### Hilfreiche LLM-Prompts
-Kursiv formatierte Prompts, die Schüler bei einer KI eingeben können:
-```javascript
-new TextRun({ text: 'Prompt-Text', italics: true, size: 22, font: 'Arial' })
-```
-
-### Konzepterklärungen / Tabellen
-Erklärungen zu Begriffen, Operatoren, Konzepten als beschriftete Tabellen oder Fließtext.
+- **Klassendiagramme/Strukturdiagramme**: `classdiagram`-Block (Titel, Attribute, Methoden)
+- **Codebeispiele**: `code`-Block, jede Zeile als eigenes Listenelement (Courier New, grauer Hintergrund)
+- **Hilfreiche LLM-Prompts**: `prompt`-Block, kursive Zeilen
+- **Konzepterklärungen**: `heading`- und `paragraph`-Blocks, oder ein `classdiagram`-Block
+  für tabellarische Begriffserklärungen
 
 ---
 
@@ -320,7 +138,6 @@ Vor der Ausgabe prüfen:
 - [ ] Dokument hat maximal 4 Seiten
 - [ ] Meilensteintabelle passt auf Seite 1 (ggf. Schriftgröße auf 16 reduzieren)
 - [ ] Zusatzinfos auf Seiten 2–4 sind themenspezifisch und hilfreich
-- [ ] Dokument mit `python scripts/office/validate.py` validiert
 
 ---
 
@@ -335,5 +152,5 @@ beliebigen KI-Chat selbst prüfen können, ob sie testat-reif sind).
 
 ## Abhängigkeiten
 
-- `docx` npm-Paket: `npm install -g docx`
-- Validierung: `python scripts/office/validate.py` (aus dem docx-Skill)
+- `python-docx`: `pip install python-docx`
+
