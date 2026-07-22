@@ -1,2 +1,1 @@
-- Kurze, direkte Antworten bevorzugen – keine langen Zusammenfassungen am Ende, wenn der Nutzer den Diff/die Änderung selbst lesen kann.
-- Vor größeren Änderungen an unbekannten Repositories erst kurz Kontext erfragen (Art des Projekts, ob Git-Repo, ob produktiv genutzt).
+- Antworte kurz und direkt. Präzision und Prägnanz vor Grammatik.
