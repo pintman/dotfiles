@@ -1,18 +1,16 @@
 ---
 name: testatkarte
 description: >
-  Erstellt Testatkarten als Word-Dokument (.docx) für Ausbildungs- und Schulprojekte.
+  Erstellt Testatkarten für Ausbildungs- und Schulprojekte.
   Eine Testatkarte ist ein strukturiertes Arbeitsblatt mit nummerierten Meilensteinen,
   die Schüler sequenziell bearbeiten und von einem Fachlehrer abzeichnen lassen.
   Nutze diesen Skill immer wenn der Nutzer eine Testatkarte, ein Attestierungsblatt,
   ein Meilenstein-Arbeitsblatt, eine Projektprüfungskarte oder ein ähnliches Dokument
-  für Schüler oder Auszubildende erstellen möchte — auch wenn das Wort "Skill" nicht fällt.
+  für Schüler oder Auszubildende erstellen möchte.
   Trigger auch bei Formulierungen wie "Erstell mir eine Testatkarte zu...",
   "Ich brauche Meilensteine für ein Projekt über...",
   "Mach ein Arbeitsblatt mit Abnahme-Checkliste für...",
   "Erstelle ein Projekt-Testat für...".
-  Ausgabe: eine .docx-Datei, maximal 4 Seiten, Seite 1 mit Meilensteintabelle,
-  Seiten 2–4 mit Zusatzinformationen (Referenz, Codebeispiele, hilfreiche Prompts).
 ---
 
 # Testatkarte – Skill
@@ -56,11 +54,39 @@ Typische Kategorien:
 - **Theoretisch/dokumentierend**: Handschriftlich erklären, Diagramm zeichnen, beschreiben
 - **Kreativ/erweiternd**: Eigene Erweiterung, Dokumentation, Präsentation
 
-### Schritt 3: Dokument erstellen
+### Schritt 3: Zusatzinformationen gestalten (Seiten 2–4)
 
-Nutze das Python-Skript [`scripts/generate.py`](scripts/generate.py). Es liest seinen kompletten Inhalt
-(Meilensteine + Zusatzinformationen) aus einer JSON-Konfigurationsdatei – der Python-Code
-selbst muss dafür nicht verändert werden.
+Die Zusatzinformationen sollen Schülern helfen, die Meilensteine zu lösen. Typische Abschnitte,
+jeweils als Blocks in `zusatzinfos` (siehe Konfigurationsschema):
+
+- **Klassendiagramme/Strukturdiagramme**: `classdiagram`-Block (Titel, Attribute, Methoden)
+- **Codebeispiele**: `code`-Block, jede Zeile als eigenes Listenelement (Courier New, grauer Hintergrund)
+- **Hilfreiche LLM-Prompts**: `prompt`-Block, kursive Zeilen
+- **Konzepterklärungen**: `heading`- und `paragraph`-Blocks, oder ein `classdiagram`-Block
+  für tabellarische Begriffserklärungen
+
+Recherchiere die Themen und gib die Quellen auf der Karte an.
+
+---
+
+### Schritt 4: Abnahme
+
+Erstelle eine Markdown-Datei mit dem vollständigen Text der
+Meilensteine und der Zusatzinformationen. Fordere auf, die Datei
+inhaltlich zu prüfen. Wenn eine positive Rückmeldung kommt, kann die
+Karte erstellt werden wie in Schritt 5 beschrieben.
+
+Die Markdown-Datei in einem passenden Ordner ablegen - nicht im
+scratchpad oder tmp-Ordner lassen.
+
+---
+
+### Schritt 5: Dokument erstellen
+
+Das Dokument wird mit dem Python-Skript
+[`scripts/generate.py`](scripts/generate.py) generiert. Es liest
+seinen kompletten Inhalt (Meilensteine + Zusatzinformationen) aus
+einer JSON-Konfigurationsdatei. 
 
 Vorgehen:
 1. JSON-Konfiguration nach dem Schema von [`example_config.json`](example_config.json) schreiben
@@ -73,19 +99,6 @@ Vorgehen:
    ```
    `--output pfad.docx` überschreibt optional das `output`-Feld aus der Config.
 
-**Seitenaufbau:**
-- **A4** (11906 × 16838 DXA), Ränder 1440 DXA (1 Zoll) rundherum
-- **Seite 1**: Namenszeile + Titel + Einleitungstext + Meilensteintabelle
-- **Seiten 2–4**: Zusatzinformationen mit Abschnitten
-
-**Farbschema** (schwarz-weiß, druckfreundlich):
-- Tabellenheader-Hintergrund: `FFFFFF` (weiß)
-- Tabellenheader-Schrift: `000000` (schwarz)
-- Ungerade Zeilen: `EEEEEE` (hellgrau)
-- Gerade Zeilen: `FFFFFF` (weiß)
-- Überschriften-Farbe: `000000` (schwarz)
-
-**Schriftgrößen**: Mindestens 11pt (= `size: 22` in docx). Fließtext 11pt, Überschriften 12–16pt.
 
 ---
 
@@ -117,18 +130,6 @@ Für eine neue Testatkarte diese Datei als Vorlage kopieren und Felder/Blocks an
 
 ---
 
-## Zusatzinformationen gestalten (Seiten 2–4)
-
-Die Zusatzinformationen sollen Schülern helfen, die Meilensteine zu lösen. Typische Abschnitte,
-jeweils als Blocks in `zusatzinfos` (siehe Konfigurationsschema oben):
-
-- **Klassendiagramme/Strukturdiagramme**: `classdiagram`-Block (Titel, Attribute, Methoden)
-- **Codebeispiele**: `code`-Block, jede Zeile als eigenes Listenelement (Courier New, grauer Hintergrund)
-- **Hilfreiche LLM-Prompts**: `prompt`-Block, kursive Zeilen
-- **Konzepterklärungen**: `heading`- und `paragraph`-Blocks, oder ein `classdiagram`-Block
-  für tabellarische Begriffserklärungen
-
----
 
 ## Qualitätsprüfung
 
@@ -137,7 +138,7 @@ Vor der Ausgabe prüfen:
 - [ ] Jeder Meilenstein ist klar formuliert und eindeutig prüfbar
 - [ ] Dokument hat maximal 4 Seiten
 - [ ] Meilensteintabelle passt auf Seite 1 (ggf. Schriftgröße auf 16 reduzieren)
-- [ ] Zusatzinfos auf Seiten 2–4 sind themenspezifisch und hilfreich
+- [ ] Zusatzinfos auf Seiten 2–4 sind themenspezifisch und hilfreich und mit Quellen belegt
 
 ---
 
