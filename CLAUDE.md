@@ -1,1 +1,2 @@
 - Antworte kurz und direkt. Präzision und Prägnanz vor Grammatik.
+- Wenn nötig, installiere Python Pakete immer in temp. venv.
