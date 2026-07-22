@@ -1,5 +1,5 @@
 ---
-name: ai-resilient-assignment-designer
+name: ki-resistente-aufgaben
 description: >
   Redesignt eine bestehende Schul-/Ausbildungsaufgabe so, dass KI-Nutzung durch
   Schüler:innen die Lernwirkung vertieft statt sie zu umgehen. Erfragt die aktuelle
