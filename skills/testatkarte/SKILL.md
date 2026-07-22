@@ -58,7 +58,7 @@ Typische Kategorien:
 
 ### Schritt 3: Dokument erstellen
 
-Nutze das Python-Skript [`generate.py`](generate.py). Es liest seinen kompletten Inhalt
+Nutze das Python-Skript [`scripts/generate.py`](scripts/generate.py). Es liest seinen kompletten Inhalt
 (Meilensteine + Zusatzinformationen) aus einer JSON-Konfigurationsdatei – der Python-Code
 selbst muss dafür nicht verändert werden.
 
@@ -69,7 +69,7 @@ Vorgehen:
    ```bash
    python3 -m venv /tmp/testatkarte_venv
    /tmp/testatkarte_venv/bin/pip install --quiet python-docx
-   /tmp/testatkarte_venv/bin/python generate.py --config config.json
+   /tmp/testatkarte_venv/bin/python scripts/generate.py --config config.json
    ```
    `--output pfad.docx` überschreibt optional das `output`-Feld aus der Config.
 
