@@ -22,7 +22,7 @@ Extrahiere jeden Artikel als einzelnen Suchbegriff. Beispiel:
 ```
 
 **b) Als hochgeladene Datei (Excel oder Textdatei):**
-Lese die Datei aus `/mnt/user-data/uploads/`. 
+Lese die vom Nutzer angegebene Datei (lokaler Pfad). 
 - `.xlsx` / `.csv`: Erste Spalte enthält die Artikelnamen
 - `.txt`: Eine Zeile = ein Artikel
 
@@ -79,8 +79,18 @@ Für jeden Artikel und jeden Händler:
 
 ## Schritt 4: Excel-Tabelle erstellen
 
-Nutze `openpyxl` um die Tabelle zu erstellen. Lies dazu den xlsx-Skill:
-`/mnt/skills/public/xlsx/SKILL.md`
+Nutze `openpyxl` um die Tabelle zu erstellen. 
+
+**Voraussetzung `openpyxl`:** Prüfe zuerst, ob `openpyxl` bereits verfügbar ist (`python3 -c "import openpyxl"`). Falls nicht, **nicht global installieren**, sondern in einer temporären virtuellen Umgebung:
+
+```bash
+python3 -m venv /tmp/preisrecherche-venv
+source /tmp/preisrecherche-venv/bin/activate
+pip install openpyxl
+```
+
+Das Skript zur Excel-Erstellung anschließend innerhalb dieser aktivierten venv ausführen.
+Am Ende die Umgebung wieder löschen.
 
 ### Tabellenstruktur
 
@@ -137,10 +147,10 @@ Verwende Excel-Formeln (nicht Python-Berechnungen):
 ## Schritt 5: Datei speichern und ausgeben
 
 ```python
-wb.save("/mnt/user-data/outputs/preisrecherche.xlsx")
+wb.save("preisrecherche.xlsx")
 ```
 
-Dann `present_files` aufrufen mit dem Pfad zur Datei.
+Datei im aktuellen Arbeitsverzeichnis speichern (oder an vom Nutzer vorgegebenem Pfad). Anschließend den Pfad im Chat mitteilen.
 
 Abschließend im Chat kurz zusammenfassen:
 - Wie viele Artikel wurden recherchiert
