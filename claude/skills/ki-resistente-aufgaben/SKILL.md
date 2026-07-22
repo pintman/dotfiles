@@ -38,7 +38,8 @@ wirklich ein Redesign gewünscht ist oder ob die bestehende Kontrollsituation
 Vor dem Redesign prüfen, ob im aktuellen Arbeitsverzeichnis ein Ordner mit
 Hintergrundinformationen zur Lehrperson/zum Kurs existiert (typischerweise
 `ABOUT_ME/`, ersatzweise ähnlich benannte Ordner). Falls vorhanden, alle Dateien
-darin lesen — insbesondere Angaben zu:
+darin lesen — insbesondere Angaben zu (falls nicht vorhanden, nach einem alternativen
+Ort fragen):
 
 - Kurs-/Fachkontext (Zielgruppe, Fächer, Notenpolitik)
 - KI-Nutzungsrichtlinie (was ist erlaubt, was nicht, wie wird geprüft)
