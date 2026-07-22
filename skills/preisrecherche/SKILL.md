@@ -1,6 +1,6 @@
 ---
 name: preisrecherche
-description: "Führe diesen Skill aus, wenn der Benutzer Preise für Elektronikartikel bei verschiedenen Händlern recherchieren möchte – insbesondere für öffentliche Beschaffungen, bei denen mindestens drei Angebote benötigt werden. Typische Trigger: \"Preisvergleich\", \"Angebote einholen\", \"Beschaffung\", \"Preise recherchieren\", \"günstigsten Anbieter finden\", oder wenn eine Liste von Artikeln angegeben wird, die bei Händlern wie Conrad, Reichelt, Alternate, AZ Delivery, Berrybase oder Voelkner gesucht werden sollen. Ergebnis ist immer eine Excel-Datei (.xlsx). Trigger auch, wenn der Nutzer sagt \"such mir Preise für...\" oder \"vergleich die Preise für...\" – selbst ohne explizite Erwähnung von Excel oder Händlern."
+description: "Recherchiert Preise für Elektronikartikel bei verschiedenen Händlern – insbesondere für öffentliche Beschaffungen, bei denen mindestens drei Angebote benötigt werden. Typische Trigger: \"Preisvergleich\", \"Angebote einholen\", \"Beschaffung\", \"Preise recherchieren\", \"günstigsten Anbieter finden\", oder wenn eine Liste von Artikeln angegeben wird, die bei Händlern wie Conrad, Reichelt, Alternate, AZ Delivery, Berrybase oder Voelkner gesucht werden sollen. Ergebnis ist immer eine Excel-Datei (.xlsx). Trigger auch, wenn der Nutzer sagt \"such mir Preise für...\" oder \"vergleich die Preise für...\" – selbst ohne explizite Erwähnung von Excel oder Händlern."
 ---
 
 # Preisrecherche-Skill
