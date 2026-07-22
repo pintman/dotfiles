@@ -79,18 +79,7 @@ Für jeden Artikel und jeden Händler:
 
 ## Schritt 4: Excel-Tabelle erstellen
 
-Nutze `openpyxl` um die Tabelle zu erstellen. 
-
-**Voraussetzung `openpyxl`:** Prüfe zuerst, ob `openpyxl` bereits verfügbar ist (`python3 -c "import openpyxl"`). Falls nicht, **nicht global installieren**, sondern in einer temporären virtuellen Umgebung:
-
-```bash
-python3 -m venv /tmp/preisrecherche-venv
-source /tmp/preisrecherche-venv/bin/activate
-pip install openpyxl
-```
-
-Das Skript zur Excel-Erstellung anschließend innerhalb dieser aktivierten venv ausführen.
-Am Ende die Umgebung wieder löschen.
+Nutze `openpyxl` um die Tabelle zu erstellen. Lies dazu zuerst den xlsx-Skill (`document-skills:xlsx`) für die Einrichtung von `openpyxl` und allgemeine Excel-Erstellungsrichtlinien.
 
 ### Tabellenstruktur
 
