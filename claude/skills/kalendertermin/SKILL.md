@@ -9,6 +9,8 @@ Legt Termine direkt im lokalen Apple Kalender (Calendar.app) per `osascript`/App
 
 ## Relevante Kalender
 
+Wenn nicht angegeben, wähle den persönlichen Kalender.
+
 Bei Unklarheit, welcher Kalender gemeint ist (z. B. bei einem Termin, der sowohl privat als auch beruflich relevant sein könnte), kurz nachfragen statt zu raten.
 
 ## Ablauf
