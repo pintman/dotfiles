@@ -11,7 +11,7 @@ jobs:
     name: Shell
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: bash -n (Syntax)
         run: |
           set -e
@@ -27,8 +27,8 @@ jobs:
     name: Python
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.x"
       - name: py_compile (Syntax)
@@ -48,8 +48,8 @@ jobs:
     name: YAML/JSON
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.x"
       - run: pip install --quiet pyyaml
@@ -59,8 +59,8 @@ jobs:
     name: SKILL.md-Frontmatter
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.x"
       - run: pip install --quiet pyyaml
@@ -70,7 +70,7 @@ jobs:
     name: Elisp
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: emacs installieren
         run: sudo apt-get update -qq && sudo apt-get install -y -qq emacs-nox
       - name: check-parens
@@ -80,7 +80,7 @@ jobs:
     name: HTML
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: tidy installieren
         run: sudo apt-get update -qq && sudo apt-get install -y -qq tidy
       - name: tidy
