@@ -1,0 +1,653 @@
+<title>Gerätesteuerung über MQTT (Referenzbeispiel)</title>
+<style>
+  :root {
+    --bg: #f2f4f8;
+    --surface: #ffffff;
+    --surface-2: #eaeef3;
+    --ink: #121824;
+    --ink-dim: #5c6674;
+    --line: #d7dee6;
+    --accent: #0f8fa0;
+    --accent-ink: #ffffff;
+    --accent-soft: rgba(15, 143, 160, 0.12);
+    --accent2: #b5791f;
+    --accent2-soft: rgba(181, 121, 31, 0.14);
+    --shadow: 0 1px 2px rgba(18, 24, 36, 0.06), 0 8px 24px -16px rgba(18, 24, 36, 0.18);
+    --term-bg: #0c1119;
+    --term-ink: #cfe8ea;
+    --term-dim: #5f7a80;
+    --term-pub: #6fd6c7;
+    --term-sub: #e0b25a;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d131c;
+      --surface: #141c29;
+      --surface-2: #1a2432;
+      --ink: #e8edf4;
+      --ink-dim: #8b97a8;
+      --line: #283348;
+      --accent: #58c9d9;
+      --accent-ink: #06222a;
+      --accent-soft: rgba(88, 201, 217, 0.14);
+      --accent2: #e2ab52;
+      --accent2-soft: rgba(226, 171, 82, 0.16);
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -18px rgba(0, 0, 0, 0.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d131c;
+    --surface: #141c29;
+    --surface-2: #1a2432;
+    --ink: #e8edf4;
+    --ink-dim: #8b97a8;
+    --line: #283348;
+    --accent: #58c9d9;
+    --accent-ink: #06222a;
+    --accent-soft: rgba(88, 201, 217, 0.14);
+    --accent2: #e2ab52;
+    --accent2-soft: rgba(226, 171, 82, 0.16);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -18px rgba(0, 0, 0, 0.6);
+  }
+  :root[data-theme="light"] {
+    --bg: #f2f4f8;
+    --surface: #ffffff;
+    --surface-2: #eaeef3;
+    --ink: #121824;
+    --ink-dim: #5c6674;
+    --line: #d7dee6;
+    --accent: #0f8fa0;
+    --accent-ink: #ffffff;
+    --accent-soft: rgba(15, 143, 160, 0.12);
+    --accent2: #b5791f;
+    --accent2-soft: rgba(181, 121, 31, 0.14);
+    --shadow: 0 1px 2px rgba(18, 24, 36, 0.06), 0 8px 24px -16px rgba(18, 24, 36, 0.18);
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.5 ui-sans-serif, system-ui, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    display: flex;
+    justify-content: center;
+    padding: 2.5rem 1.25rem 4rem;
+  }
+  .page {
+    width: 100%;
+    max-width: 1100px;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .eyebrow {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 0.5rem;
+  }
+  h1 {
+    font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.3rem);
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    margin: 0 0 0.6rem;
+  }
+  .lede {
+    margin: 0;
+    max-width: 62ch;
+    color: var(--ink-dim);
+    font-size: 1rem;
+  }
+  code, .mono {
+    font-family: ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
+  }
+
+  /* legend */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    align-items: center;
+    padding: 0.7rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 0.82rem;
+    color: var(--ink-dim);
+  }
+  .legend-item { display: flex; align-items: baseline; gap: 0.55rem; }
+  .swatch { width: 0.7rem; height: 0.7rem; border-radius: 999px; flex: none; position: relative; top: 0.05rem; }
+  .swatch.state { background: var(--accent); }
+  .swatch.owner { background: var(--accent2); }
+  .legend-item .meaning { color: var(--ink-dim); }
+  .legend-item .retained-tag {
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.04em;
+    color: var(--accent2); border: 1px solid var(--accent2); border-radius: 4px;
+    padding: 0 0.3rem; margin-left: 0.25rem;
+  }
+
+  /* stage */
+  figure.stage-figure { margin: 0; }
+  .stage-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.6rem;
+  }
+  .stage-head h2 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--ink-dim);
+    letter-spacing: 0.02em;
+  }
+  #toggleBtn {
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--accent-ink);
+    background: var(--accent);
+    border: none;
+    border-radius: 999px;
+    padding: 0.4rem 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  #toggleBtn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  #toggleBtn:hover { filter: brightness(1.06); }
+
+  .stage-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+  .stage-inner {
+    min-width: 760px;
+    padding: 0.5rem;
+  }
+  svg.diagram { display: block; width: 100%; height: auto; aspect-ratio: 1040 / 480; }
+
+  .node {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.3rem;
+    padding: 0.9rem 1.1rem;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--surface-2);
+    transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  }
+  .node-icon { color: var(--ink-dim); }
+  .node-title { font-weight: 700; font-size: 0.98rem; color: var(--ink); }
+  .node-sub { font-size: 0.72rem; color: var(--ink-dim); }
+  .node.is-active {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  .node.is-active .node-icon { color: var(--accent); }
+  .node.broker { align-items: center; text-align: center; }
+  .node.broker .node-title { font-size: 1.05rem; }
+  .node.broker.is-pulse {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 5px var(--accent-soft);
+  }
+  .node.flash-state {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  .node.flash-owner {
+    border-color: var(--accent2);
+    background: var(--accent2-soft);
+    box-shadow: 0 0 0 3px var(--accent2-soft);
+  }
+  .node.db .node-icon { color: var(--accent2); }
+  .chip {
+    align-self: flex-start;
+    margin-top: 0.15rem;
+    font-size: 0.68rem;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    padding: 0.12rem 0.45rem;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--ink-dim);
+  }
+  .node.broker .chip { align-self: center; }
+  .chip.owner { border-color: var(--accent2); color: var(--accent2); }
+
+  .actor-mark { transform-origin: 50% 50%; transition: transform 0.2s ease; }
+  .node.actor.is-running .actor-mark { animation: spin 0.6s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  path.wire { fill: none; stroke: var(--line); stroke-width: 2; }
+  circle.packet.state { fill: var(--accent); }
+  circle.packet.owner { fill: var(--accent2); }
+
+  figcaption { font-size: 0.82rem; color: var(--ink-dim); margin-top: 0.7rem; max-width: 68ch; }
+
+  /* wire log + db table */
+  .panels {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 1.25rem;
+  }
+  @media (max-width: 720px) { .panels { grid-template-columns: 1fr; } }
+
+  .panel {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .panel-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    padding: 0.7rem 1rem 0.6rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  #terminal {
+    background: var(--term-bg);
+    color: var(--term-ink);
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    font-size: 0.78rem;
+    padding: 0.85rem 1rem;
+    height: 15rem;
+    overflow-y: auto;
+    line-height: 1.6;
+  }
+  .log-line { white-space: pre-wrap; word-break: break-word; }
+  .log-line .k-pub { color: var(--term-pub); font-weight: 600; }
+  .log-line .k-sub { color: var(--term-sub); font-weight: 600; }
+  .log-line .k-cmd { color: #ffffff; }
+  .log-line .k-dim { color: var(--term-dim); }
+
+  table#dbTable { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+  table#dbTable th, table#dbTable td {
+    text-align: left;
+    padding: 0.5rem 0.8rem;
+    border-bottom: 1px solid var(--line);
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  table#dbTable td.payload { white-space: normal; color: var(--ink-dim); }
+  table#dbTable th {
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    color: var(--ink-dim);
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: var(--surface-2);
+  }
+  table#dbTable tbody tr:last-child td { border-bottom: none; }
+  .db-scroll { overflow: auto; height: 15rem; }
+
+  .reduced-note {
+    font-size: 0.78rem;
+    color: var(--ink-dim);
+    padding: 0.6rem 1rem;
+    border-top: 1px dashed var(--line);
+    display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reduced-note { display: block; }
+    #toggleBtn { display: none; }
+  }
+</style>
+
+<div class="page">
+
+  <header>
+    <p class="eyebrow">Referenzbeispiel &middot; MQTT-Nachrichtenfluss</p>
+    <h1>Zwei Eingabequellen steuern ein Gerät</h1>
+    <p class="lede">
+      Fernbedienung und Steuerkonsole sind zwei gleichberechtigte Eingabewege, die für ein
+      Gerät (Platzhalter <code>{GERAET_ID}</code>) dieselben zwei Topics auf dem MQTT-Broker
+      veröffentlichen. Der Broker verteilt jede Nachricht unverändert parallel an den Aktor
+      (Ausführung) und an einen Logger, der sie in der Datenbank ablegt &ndash; die Datenbank
+      steuert also nicht mit, sie protokolliert nur.
+    </p>
+  </header>
+
+  <div class="legend" aria-hidden="true">
+    <span class="legend-item">
+      <span class="swatch state"></span>
+      <code>geraete/{GERAET_ID}/zustand</code>
+      <span class="meaning">&mdash; 0 (aus) oder 1 (an)</span>
+    </span>
+    <span class="legend-item">
+      <span class="swatch owner"></span>
+      <code>geraete/{GERAET_ID}/besitzer</code>
+      <span class="meaning">&mdash; Kennung der Quelle</span>
+      <span class="retained-tag">retained</span>
+    </span>
+  </div>
+
+  <figure class="stage-figure">
+    <div class="stage-head">
+      <h2>Nachrichtenfluss (live)</h2>
+      <button id="toggleBtn" type="button" aria-pressed="false">Pause</button>
+    </div>
+
+    <div class="stage-scroll">
+      <div class="stage-inner">
+        <svg class="diagram" viewBox="0 0 1040 480" role="img" aria-hidden="true">
+
+          <path id="wire-a"      class="wire" d="M270,100 C 340,100 340,220 400,220" />
+          <path id="wire-b"      class="wire" d="M270,380 C 340,380 340,260 400,260" />
+          <path id="wire-actor"  class="wire" d="M640,215 C 700,215 700,100 760,100" />
+          <path id="wire-db"     class="wire" d="M640,265 C 700,265 700,380 760,380" />
+
+          <circle id="pk-a"      class="packet state" r="7" opacity="0">
+            <animateMotion id="anim-a" dur="0.85s" begin="indefinite" fill="freeze"><mpath href="#wire-a" /></animateMotion>
+          </circle>
+          <circle id="pk-b"      class="packet state" r="7" opacity="0">
+            <animateMotion id="anim-b" dur="0.85s" begin="indefinite" fill="freeze"><mpath href="#wire-b" /></animateMotion>
+          </circle>
+          <circle id="pk-actor"  class="packet state" r="7" opacity="0">
+            <animateMotion id="anim-actor" dur="0.8s" begin="indefinite" fill="freeze"><mpath href="#wire-actor" /></animateMotion>
+          </circle>
+          <circle id="pk-db"     class="packet state" r="7" opacity="0">
+            <animateMotion id="anim-db" dur="0.8s" begin="indefinite" fill="freeze"><mpath href="#wire-db" /></animateMotion>
+          </circle>
+
+          <foreignObject x="40" y="50" width="230" height="100">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="node" id="node-a">
+              <svg class="node-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="8" width="20" height="10" rx="5"/><path d="M8 11v4M6 13h4"/><circle cx="16.5" cy="11.5" r="1"/><circle cx="18.5" cy="13.5" r="1"/></svg>
+              <span class="node-title">Fernbedienung</span>
+              <span class="node-sub mono">pub zustand &middot; pub besitzer</span>
+            </div>
+          </foreignObject>
+
+          <foreignObject x="40" y="330" width="230" height="100">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="node" id="node-b">
+              <svg class="node-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 9l3 3-3 3M12 15h6"/></svg>
+              <span class="node-title">Steuerkonsole</span>
+              <span class="node-sub mono">pub zustand &middot; pub besitzer</span>
+            </div>
+          </foreignObject>
+
+          <foreignObject x="395" y="158" width="250" height="164">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="node broker" id="node-broker">
+              <svg class="node-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2.4"/><circle cx="4" cy="5" r="1.8"/><circle cx="20" cy="5" r="1.8"/><circle cx="4" cy="19" r="1.8"/><circle cx="20" cy="19" r="1.8"/><path d="M6 6.3 10.3 10.3M17.7 6.3 13.7 10.3M6 17.7 10.3 13.7M17.7 17.7 13.7 13.7"/></svg>
+              <span class="node-title">MQTT-Broker</span>
+              <span class="node-sub">vermittelt Topics, kennt keine Gerätelogik</span>
+              <span class="chip">geraete/geraet-01/zustand</span>
+              <span class="chip owner">retained besitzer: <span id="ownerVal">&ndash;</span></span>
+            </div>
+          </foreignObject>
+
+          <foreignObject x="760" y="50" width="230" height="100">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="node actor" id="node-actor">
+              <svg class="node-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><g class="actor-mark"><circle cx="12" cy="12" r="8"/><path d="M12 12 12 6"/></g></svg>
+              <span class="node-title">Aktor</span>
+              <span class="node-sub mono">sub geraete/{id}/zustand</span>
+            </div>
+          </foreignObject>
+
+          <foreignObject x="760" y="330" width="230" height="100">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="node db" id="node-db">
+              <svg class="node-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+              <span class="node-title">Datenbank</span>
+              <span class="node-sub mono">Logger: sub geraete/{id}/zustand</span>
+            </div>
+          </foreignObject>
+
+        </svg>
+      </div>
+    </div>
+    <figcaption>
+      Fernbedienung und Steuerkonsole veröffentlichen auf <code>geraete/{GERAET_ID}/zustand</code>
+      (0/1) oder <code>geraete/{GERAET_ID}/besitzer</code> (Kennung der Quelle). Nur
+      <code>zustand</code> hat aktive Abonnenten: Aktor (führt aus) und DB-Logger (schreibt die
+      Historie). <code>besitzer</code> hat in diesem Aufbau keinen Abonnenten &ndash; die
+      Nachricht wird einmalig veröffentlicht und bleibt danach nur retained im Broker liegen,
+      bis sich irgendwann ein Client dafür interessiert und sie beim Abonnieren sofort
+      zugestellt bekommt.
+    </figcaption>
+  </figure>
+
+  <div class="panels">
+    <div class="panel">
+      <div class="panel-title">MQTT-Client &middot; Terminal</div>
+      <div id="terminal" aria-live="off"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Datenbank &middot; Tabelle zustand_log</div>
+      <div class="db-scroll">
+        <table id="dbTable">
+          <thead>
+            <tr><th>id</th><th>zeit</th><th>quelle</th><th>payload</th></tr>
+          </thead>
+          <tbody id="dbBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var els = {
+    toggleBtn: document.getElementById("toggleBtn"),
+    terminal: document.getElementById("terminal"),
+    dbBody: document.getElementById("dbBody"),
+    nodeA: document.getElementById("node-a"),
+    nodeB: document.getElementById("node-b"),
+    nodeBroker: document.getElementById("node-broker"),
+    nodeActor: document.getElementById("node-actor"),
+    nodeDb: document.getElementById("node-db"),
+    pkA: document.getElementById("pk-a"),
+    pkB: document.getElementById("pk-b"),
+    pkActor: document.getElementById("pk-actor"),
+    pkDb: document.getElementById("pk-db"),
+    ownerVal: document.getElementById("ownerVal"),
+    animA: document.getElementById("anim-a"),
+    animB: document.getElementById("anim-b"),
+    animActor: document.getElementById("anim-actor"),
+    animDb: document.getElementById("anim-db")
+  };
+
+  var GERAET = "geraet-01";
+
+  // Ein Skript aus realistischen Schritten: erst Besitz beanspruchen (retained),
+  // dann das Gerät an- und wieder ausschalten - danach übernimmt die andere Quelle.
+  var steps = [
+    { source: "a", topic: "besitzer", payload: "fernbedienung" },
+    { source: "a", topic: "zustand",  payload: "1" },
+    { source: "a", topic: "zustand",  payload: "0" },
+    { source: "b", topic: "besitzer", payload: "konsole-02" },
+    { source: "b", topic: "zustand",  payload: "1" },
+    { source: "b", topic: "zustand",  payload: "0" }
+  ];
+  var stepIndex = 0;
+  var dbId = 128;
+  var running = true;
+  var looping = false;
+
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+  function playMotion(circleEl, animEl) {
+    return new Promise(function (resolve) {
+      circleEl.setAttribute("opacity", "1");
+      function onEnd() {
+        animEl.removeEventListener("endEvent", onEnd);
+        resolve();
+      }
+      animEl.addEventListener("endEvent", onEnd);
+      animEl.beginElement();
+    });
+  }
+
+  function hide(circleEl) { circleEl.setAttribute("opacity", "0"); }
+
+  function timeNow() {
+    return new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  }
+
+  function addLog(html) {
+    var line = document.createElement("div");
+    line.className = "log-line";
+    line.innerHTML = html;
+    els.terminal.appendChild(line);
+    while (els.terminal.children.length > 9) {
+      els.terminal.removeChild(els.terminal.firstChild);
+    }
+    els.terminal.scrollTop = els.terminal.scrollHeight;
+  }
+
+  function addDbRow(source, payload) {
+    var tr = document.createElement("tr");
+    tr.innerHTML =
+      "<td>" + dbId++ + "</td>" +
+      "<td>" + timeNow() + "</td>" +
+      "<td>" + source + "</td>" +
+      "<td class=\"payload\">" + payload + "</td>";
+    els.dbBody.insertBefore(tr, els.dbBody.firstChild);
+    while (els.dbBody.children.length > 6) {
+      els.dbBody.removeChild(els.dbBody.lastChild);
+    }
+  }
+
+  function pulse(node, cls, ms) {
+    node.classList.add(cls);
+    setTimeout(function () { node.classList.remove(cls); }, ms);
+  }
+
+  async function runCycle(step) {
+    var topic = "geraete/" + GERAET + "/" + step.topic;
+    var retained = step.topic === "besitzer";
+    var colorClass = step.topic === "zustand" ? "state" : "owner";
+    var t = timeNow();
+
+    if (step.source === "a") {
+      els.nodeA.classList.add("is-active");
+      addLog('<span class="k-dim"># Fernbedienung</span>');
+      addLog(
+        '<span class="k-dim">' + t + '</span> <span class="k-pub">PUB</span>' +
+        (retained ? ' <span class="k-sub">-r</span>' : '') +
+        ' <span class="k-cmd">' + topic + '</span> ' + step.payload
+      );
+      els.pkA.setAttribute("class", "packet " + colorClass);
+      await playMotion(els.pkA, els.animA);
+      hide(els.pkA);
+      els.nodeA.classList.remove("is-active");
+    } else {
+      var cmd = step.topic === "besitzer" ? "geraetectl claim " + GERAET : "geraetectl " + (step.payload === "1" ? "on" : "off") + " " + GERAET;
+      addLog('<span class="k-cmd">$ ' + cmd + '</span>');
+      addLog(
+        '<span class="k-dim">' + t + '</span> <span class="k-pub">PUB</span>' +
+        (retained ? ' <span class="k-sub">-r</span>' : '') +
+        ' <span class="k-cmd">' + topic + '</span> ' + step.payload
+      );
+      els.nodeB.classList.add("is-active");
+      els.pkB.setAttribute("class", "packet " + colorClass);
+      await playMotion(els.pkB, els.animB);
+      hide(els.pkB);
+      els.nodeB.classList.remove("is-active");
+    }
+
+    pulse(els.nodeBroker, "is-pulse", 320);
+
+    if (step.topic === "zustand") {
+      addLog('<span class="k-dim">' + timeNow() + '</span> <span class="k-sub">SUB</span> aktor &larr; ' + topic);
+      addLog('<span class="k-dim">' + timeNow() + '</span> <span class="k-sub">SUB</span> db-logger &larr; ' + topic);
+
+      els.pkActor.setAttribute("class", "packet " + colorClass);
+      els.pkDb.setAttribute("class", "packet " + colorClass);
+      await Promise.all([
+        playMotion(els.pkActor, els.animActor),
+        playMotion(els.pkDb, els.animDb)
+      ]);
+      hide(els.pkActor);
+      hide(els.pkDb);
+
+      els.nodeActor.classList.toggle("is-running", step.payload === "1");
+      pulse(els.nodeActor, "flash-" + colorClass, 400);
+      addDbRow(step.source, step.payload);
+      pulse(els.nodeDb, "flash-" + colorClass, 500);
+    } else {
+      els.ownerVal.textContent = step.payload;
+      addLog('<span class="k-dim">' + timeNow() + '</span> <span class="k-dim">kein Subscriber &ndash; bleibt retained im Broker liegen</span>');
+    }
+
+    await wait(750);
+  }
+
+  async function loop() {
+    if (looping) return;
+    looping = true;
+    while (running) {
+      await runCycle(steps[stepIndex % steps.length]);
+      stepIndex++;
+    }
+    looping = false;
+  }
+
+  function renderStatic() {
+    addLog('<span class="k-cmd">$ geraetectl claim ' + GERAET + '</span>');
+    addLog('<span class="k-dim">' + timeNow() + '</span> <span class="k-pub">PUB</span> <span class="k-sub">-r</span> <span class="k-cmd">geraete/' + GERAET + '/besitzer</span> konsole-02');
+    addLog('<span class="k-dim">' + timeNow() + '</span> <span class="k-dim">kein Subscriber &ndash; bleibt retained im Broker liegen</span>');
+    addLog('<span class="k-cmd">$ geraetectl on ' + GERAET + '</span>');
+    addLog('<span class="k-dim">' + timeNow() + '</span> <span class="k-pub">PUB</span> <span class="k-cmd">geraete/' + GERAET + '/zustand</span> 1');
+    addLog('<span class="k-dim">' + timeNow() + '</span> <span class="k-sub">SUB</span> aktor &larr; geraete/' + GERAET + '/zustand');
+    addLog('<span class="k-dim">' + timeNow() + '</span> <span class="k-sub">SUB</span> db-logger &larr; geraete/' + GERAET + '/zustand');
+    addDbRow("konsole-02", "1");
+    els.ownerVal.textContent = "konsole-02";
+    els.nodeActor.classList.add("is-running");
+    var note = document.createElement("div");
+    note.className = "reduced-note";
+    note.textContent = "Bewegung reduziert (Systemeinstellung): Diagramm zeigt einen einzelnen Beispiel-Durchlauf statt der fortlaufenden Animation.";
+    document.querySelector(".stage-figure").appendChild(note);
+  }
+
+  els.toggleBtn.addEventListener("click", function () {
+    running = !running;
+    els.toggleBtn.textContent = running ? "Pause" : "Fortsetzen";
+    els.toggleBtn.setAttribute("aria-pressed", String(!running));
+    if (running) loop();
+  });
+
+  if (reduceMotion) {
+    renderStatic();
+  } else {
+    loop();
+  }
+})();
+</script>
