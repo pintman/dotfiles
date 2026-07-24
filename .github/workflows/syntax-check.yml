@@ -84,4 +84,11 @@ jobs:
       - name: tidy installieren
         run: sudo apt-get update -qq && sudo apt-get install -y -qq tidy
       - name: tidy
-        run: tidy -q -e claude/skills/mqtt-animation/reference-example.html
+        run: |
+          set +e
+          tidy -q -e claude/skills/mqtt-animation/reference-example.html
+          code=$?
+          set -e
+          # tidy: 0 = sauber, 1 = nur Warnings (z.B. unbekannte SVG-Attribute), 2 = echte Errors
+          if [ "$code" -ge 2 ]; then exit 1; fi
+          exit 0
