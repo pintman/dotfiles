@@ -22,6 +22,10 @@
 (setq mac-option-modifier nil
       mac-command-modifier 'meta)
 
+; backup files gesammelt statt verstreut ablegen
+(setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+(make-directory "~/.emacs.d/backups" t)
+
 ; Source - https://stackoverflow.com/q/10152287
 ; Posted by Peter, modified by community. See post 'Timeline' for change history
 ; Retrieved 2026-02-09, License - CC BY-SA 3.0
