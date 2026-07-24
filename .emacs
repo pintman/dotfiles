@@ -26,6 +26,18 @@
 (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
 (make-directory "~/.emacs.d/backups" t)
 
+; alte Backups beim Start aufräumen
+(defun my/cleanup-old-backups ()
+  "Lösche Backup-Dateien älter als 30 Tage."
+  (let* ((dir (expand-file-name "~/.emacs.d/backups"))
+         (cutoff (- (float-time) (* 30 24 60 60))))
+    (when (file-directory-p dir)
+      (dolist (file (directory-files dir t "\\`[^.]"))
+        (when (and (file-regular-p file)
+                   (< (float-time (nth 5 (file-attributes file))) cutoff))
+          (delete-file file))))))
+(add-hook 'emacs-startup-hook #'my/cleanup-old-backups)
+
 ; Source - https://stackoverflow.com/q/10152287
 ; Posted by Peter, modified by community. See post 'Timeline' for change history
 ; Retrieved 2026-02-09, License - CC BY-SA 3.0
