@@ -1,0 +1,87 @@
+name: Syntax-Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  shell:
+    name: Shell
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: bash -n (Syntax)
+        run: |
+          set -e
+          for f in .bash_aliases claude/hooks/*.sh claude/scripts/*.sh; do
+            echo "::group::$f"
+            bash -n "$f"
+            echo "::endgroup::"
+          done
+      - name: shellcheck (Lint, nicht blockierend)
+        run: shellcheck -s bash .bash_aliases claude/hooks/*.sh claude/scripts/*.sh || true
+
+  python:
+    name: Python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: py_compile (Syntax)
+        run: |
+          set -e
+          for f in $(git ls-files '*.py'); do
+            echo "::group::$f"
+            python -m py_compile "$f"
+            echo "::endgroup::"
+          done
+      - name: ruff (Lint, nicht blockierend)
+        run: |
+          pip install --quiet ruff
+          ruff check $(git ls-files '*.py') || true
+
+  config:
+    name: YAML/JSON
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - run: pip install --quiet pyyaml
+      - run: python .github/scripts/check_yaml_json.py
+
+  frontmatter:
+    name: SKILL.md-Frontmatter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - run: pip install --quiet pyyaml
+      - run: python .github/scripts/check_frontmatter.py
+
+  elisp:
+    name: Elisp
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: emacs installieren
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq emacs-nox
+      - name: check-parens
+        run: emacs --batch --eval "(progn (find-file \".emacs\") (check-parens))"
+
+  html:
+    name: HTML
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: tidy installieren
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq tidy
+      - name: tidy
+        run: tidy -q -e claude/skills/mqtt-animation/reference-example.html
