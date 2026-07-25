@@ -30,3 +30,31 @@ Einbindung in `~/.claude/settings.json` (Symlink vorausgesetzt, daher
 ```
 
 Voraussetzung: `jq` muss installiert sein (`brew install jq`).
+
+## block-git-push.sh
+
+Blockiert jeden `git push`-Aufruf, den Claude Code über das Bash-Tool
+ausführen will — hart und ohne Umgehungsmöglichkeit. `git commit` bleibt
+uneingeschränkt. Der Nutzer pusht in diesem Fall selbst im Terminal.
+
+Einbindung in `~/.claude/settings.json`:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "$HOME/.claude/hooks/block-git-push.sh" }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Voraussetzung: `jq` muss installiert sein (`brew install jq`).
+
+Test: `claude/hooks/test-block-git-push.sh` prüft nur das externe Verhalten
+(Exit-Code + `stderr`), nicht die interne Regex.
