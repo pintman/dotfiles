@@ -52,6 +52,10 @@
  '(dired-listing-switches "-alh")
  '(display-line-numbers 'relative)
  '(display-time-24hr-format t)
+ ; auf Platte geänderte Dateien automatisch neu laden (ungesicherte
+ ; Buffer-Änderungen bleiben unangetastet, Emacs überschreibt nie)
+ '(global-auto-revert-mode t)
+ '(global-auto-revert-non-file-buffers t)
  '(global-display-line-numbers-mode t)
  '(ido-enable-flex-matching t)
  '(inhibit-startup-screen t)
