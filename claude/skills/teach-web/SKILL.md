@@ -1,7 +1,7 @@
 ---
 name: teach-web
 description: >
-  Erzeugt ein portables Starter-Kit (eine einzige Markdown-Datei) mit dem der
+  Erzeugt ein portables Starter-Kit (vier separate Dateien in einem Ordner) mit dem der
   `teach`-Skill auch ohne Claude-Code-Subscription nutzbar wird — über die normale
   Claude.ai-Weboberfläche (Projects, Knowledge, Artifacts). Gedacht für den
   Bildungsbereich: Schüler und Auszubildende richten sich damit selbst einen geführten
@@ -14,9 +14,10 @@ description: >
   Subscription" verfügbar machen möchte, oder ein Selbstlern-/Fernlern-Kit für ein
   bestimmtes Thema für Azubis/Schüler erstellen will — auch ohne das Wort "Skill".
   Ergänzt den Skill `teach` (der für Nutzer mit Claude Code gedacht ist), ersetzt ihn
-  aber nicht — beide leben unabhängig nebeneinander. Ausgabe: eine .md-Datei mit vier
-  Teilen (Custom-Instructions-Kurzanleitung, vollständige Rollen-/Philosophie-Datei,
-  leerer Startzustand samt Stylesheet, Einrichtungs-Anleitung für Schüler).
+  aber nicht — beide leben unabhängig nebeneinander. Ausgabe: vier Dateien in einem
+  Ordner (Custom-Instructions-Kurzanleitung, vollständige Rollen-/Philosophie-Datei,
+  leerer Startzustand samt Stylesheet, Einrichtungs-Anleitung für Schüler) — jede
+  Datei bereits unter dem Namen, den Claude.ai später erwartet.
 disable-model-invocation: true
 argument-hint: "Thema/Mission + Zielgruppe, z. B. 'Netzwerktechnik-Grundlagen, Azubis 1. Lehrjahr Fachinformatiker'"
 ---
@@ -52,11 +53,10 @@ einem normalen Claude.ai-Project funktioniert:
   Die volle Rollen-/Philosophie-Beschreibung ist daher **keine** Custom Instruction,
   sondern eine hochgeladene Knowledge-Datei (`ANLEITUNG.md`, kein Zeichenlimit); das
   Custom-Instructions-Feld enthält nur einen kurzen, robusten Verweis darauf.
-
-`teach-web` ist bewusst **kein automatischer Übersetzer** von `teach/SKILL.md` — die
-Mechanik unterscheidet sich zu grundlegend (kein Read/Write/Bash, Artifacts statt
-Verzeichnis, sitzungsweiser Export statt fortlaufendem Zustand). Es ist ein
-eigenständig gepflegtes Derivat.
+- Das Kit selbst wird als **vier separate Dateien** erzeugt, nicht als eine Datei zum
+  manuellen Aufteilen — jede Datei trägt bereits den Namen, unter dem sie später in
+  Claude.ai landet (`ANLEITUNG.md`, `ZUSTAND.md`). Das spart Schülern und Azubis den
+  Copy-Paste-Split-Schritt komplett.
 
 ## Schritt-für-Schritt-Anleitung
 
@@ -71,43 +71,47 @@ Falls nicht schon angegeben, kurz erfragen:
   verwenden, ohne extra nachzufragen.
 
 Das Kit ist bewusst **wiederverwendbar für die ganze Klasse/Gruppe zu diesem einen
-Thema** — jedes Team/jede Einzelperson lädt dieselbe generierte Datei hoch und pflegt
-danach im eigenen Project einen eigenen `ZUSTAND.md`-Stand. Keine Einzelanfertigung pro
-Person nötig.
+Thema** — jedes Team/jede Einzelperson erhält denselben Ordner und pflegt danach im
+eigenen Project einen eigenen `ZUSTAND.md`-Stand. Keine Einzelanfertigung pro Person
+nötig.
 
-### Schritt 2: Template befüllen
+### Schritt 2: Templates befüllen
 
-Das Template unten mit Thema und Zielgruppe befüllen (`[THEMA]`, `[ZIELGRUPPE]`
+Die vier Templates unten mit Thema und Zielgruppe befüllen (`[THEMA]`, `[ZIELGRUPPE]`
 ersetzen). Der Rest bleibt inhaltlich unverändert — er ist absichtlich themenunabhängig
 formuliert, damit die Philosophie (Mission-Interview, ZPD, Lernprotokolle,
 Stylesheet-Pflege) für jedes Fach trägt.
 
-### Schritt 3: Als Markdown-Datei speichern
+### Schritt 3: Als vier Dateien speichern
 
-Dateiname: `Teach-Web-Starterkit_<thema-slug>.md` im aktuellen Arbeitsverzeichnis
-speichern (bei Unklarheit über den Speicherort kurz nachfragen). Reines Markdown, kein
-docx — die Teile müssen 1:1 kopierbar bzw. als einzelne Dateien speicherbar sein.
+Ordner `Teach-Web-Kit_<thema-slug>/` im aktuellen Arbeitsverzeichnis anlegen (bei
+Unklarheit über den Speicherort kurz nachfragen) und darin **vier einzelne Dateien**
+schreiben — nicht eine kombinierte Datei:
+
+- `custom-instructions.md` (Inhalt von Template 1)
+- `ANLEITUNG.md` (Inhalt von Template 2)
+- `ZUSTAND.md` (Inhalt von Template 3)
+- `EINRICHTUNG.md` (Inhalt von Template 4)
+
+Die Namen `ANLEITUNG.md` und `ZUSTAND.md` sind absichtlich exakt die Namen, die auch in
+der Project-Knowledge verwendet werden — dadurch entfällt beim Einrichten jedes
+Umbenennen oder Aufteilen.
 
 ### Schritt 4: Rückmeldung geben
 
-Kurze Vorschau zeigen und erklären, wie die Datei weitergegeben wird: als Ganzes an
-Schüler/Azubis aushändigen (Teams, Moodle, Ausdruck), mit dem Hinweis, Teil 3
-(„Einrichtungs-Anleitung") zuerst zu lesen. Daran erinnern, dass das Kit pro Thema
-einmalig generiert wird, nicht pro Schüler.
+Kurz auflisten, welche vier Dateien im Ordner liegen, und erklären, wie sie
+weitergegeben werden: den ganzen Ordner an Schüler/Azubis aushändigen (Teams, Moodle,
+Zip), mit dem Hinweis, `EINRICHTUNG.md` zuerst zu lesen. Daran erinnern, dass das Kit
+pro Thema einmalig generiert wird, nicht pro Schüler.
 
-## Template
+## Templates
+
+### Datei 1: `custom-instructions.md`
+
+Inhalt zum Einfügen in das Feld "Custom Instructions" im Claude-Project (nicht die
+Markdown-Überschrift mit hochladen, nur den Code-Block-Inhalt):
 
 ````markdown
-# Teach-Web-Starterkit: [THEMA]
-
-Dieses Dokument hat vier Teile. Teil 1–3 gehören in ein neues Claude.ai-Project
-(siehe Teil 4 für die genaue Anleitung), Teil 4 ist für dich zum Lesen.
-
----
-
-## Teil 1: Für das Feld "Custom Instructions" im Claude-Project
-
-```
 # Rolle
 
 Du bist Lehrer:in für [THEMA] in einem geführten Fernlern-Workspace für
@@ -133,13 +137,13 @@ ZUSTAND.md (Format in ANLEITUNG.md). Weise die lernende(n) Person(en) an, es
 herunterzuladen und in der Project-Knowledge die alte ZUSTAND.md damit zu
 ersetzen, bevor die nächste Sitzung beginnt. Ohne diesen Schritt startet die
 nächste Sitzung mit veraltetem Stand.
-```
+````
 
----
+### Datei 2: `ANLEITUNG.md`
 
-## Teil 2: Als Datei `ANLEITUNG.md` in die Project-Knowledge hochladen
+Wird 1:1 als Datei in die Project-Knowledge hochgeladen:
 
-```
+````markdown
 # ANLEITUNG.md — Rolle und Arbeitsweise
 
 Diese Datei ist deine vollständige Rolle in diesem Fernlern-Workspace. Sie
@@ -298,13 +302,13 @@ Sitzungen hinweg für optischen Zusammenhalt sorgt (es gibt keinen gemeinsamen
 assets-Ordner). Ändere es nur bei explizitem Wunsch der lernenden Person, und
 trage die geänderte Fassung dann in die nächste ZUSTAND.md-Ausgabe ein —
 sonst sehen aufeinanderfolgende Lektionen inkonsistent aus.
-```
+````
 
----
+### Datei 3: `ZUSTAND.md` (Startzustand)
 
-## Teil 3: Als Datei `ZUSTAND.md` in die Project-Knowledge hochladen (Startzustand)
+Wird 1:1 als Datei in die Project-Knowledge hochgeladen:
 
-```
+````markdown
 # ZUSTAND.md — [THEMA]
 
 > Diese Datei ist das Gedächtnis dieses Lern-Workspace. Nach jeder Sitzung
@@ -378,17 +382,22 @@ zusammenhängender Kurs aussehen:
     feedback.className = 'feedback zeigen ' + (korrekt ? 'richtig' : 'falsch');
   }
 </script>
-```
+````
 
----
+### Datei 4: `EINRICHTUNG.md`
 
-## Teil 4: Einrichtungs-Anleitung (für dich / euch als Team)
-
-Diese Anleitung richtet sich an dich (oder euch als Zweier-Team). Ihr braucht
-**keinen Claude-Code-Zugang** — nur einen Browser und einen kostenlosen
+Diese Anleitung richtet sich an die lernende Person (oder das Zweier-Team). Sie
+braucht **keinen Claude-Code-Zugang** — nur einen Browser und einen kostenlosen
 Claude.ai-Account.
 
-### Wichtig zuerst: Wer legt den Account an?
+````markdown
+# Einrichtung — [THEMA]
+
+Ihr braucht keinen Claude-Code-Zugang — nur einen Browser und einen
+kostenlosen Claude.ai-Account. In diesem Ordner liegen drei weitere Dateien,
+die ihr gleich braucht: `custom-instructions.md`, `ANLEITUNG.md`, `ZUSTAND.md`.
+
+## Wichtig zuerst: Wer legt den Account an?
 
 Claude.ai erlaubt eigene Accounts erst **ab 18 Jahren** (so wie bei praktisch
 allen KI-Chat-Anbietern).
@@ -401,56 +410,57 @@ allen KI-Chat-Anbietern).
   einer gemeinsamen Mission. Der Fortschritt wird dann fürs Team gemeinsam
   geführt, nicht getrennt.
 
-### Schritt 1: Account anlegen
+## Schritt 1: Account anlegen
 Auf claude.ai registrieren (kostenlos, Free-Plan reicht völlig aus).
 
-### Schritt 2: Neues Project anlegen
+## Schritt 2: Neues Project anlegen
 In Claude.ai auf "Projects" → "Neues Project" klicken. Namen vergeben, z. B.
 "[THEMA]".
 
-### Schritt 3: Teil 1 einfügen
+## Schritt 3: Custom Instructions einfügen
 In den Project-Einstellungen das Feld "Custom Instructions" öffnen, den
-kompletten Inhalt aus **Teil 1** dieser Datei hineinkopieren, speichern.
+kompletten Inhalt aus `custom-instructions.md` hineinkopieren, speichern.
 
-### Schritt 4: Teil 2 und 3 als Dateien hochladen
-Im Project unter "Knowledge" → Dateien hinzufügen:
-- Teil 2 als eigene Datei `ANLEITUNG.md` speichern und hochladen.
-- Teil 3 als eigene Datei `ZUSTAND.md` speichern und hochladen.
+## Schritt 4: ANLEITUNG.md und ZUSTAND.md hochladen
+Im Project unter "Knowledge" → Dateien hinzufügen: `ANLEITUNG.md` und
+`ZUSTAND.md` direkt aus diesem Ordner hochladen — kein Umbenennen, kein
+Aufteilen nötig, die Dateien heißen schon richtig.
 
-(Falls euch das Aufteilen zu umständlich ist: Einfach im neuen Chat Claude
-bitten, dabei zu helfen, diese eine Datei in drei Teile zu trennen.)
-
-### Schritt 5: Ersten Chat starten
+## Schritt 5: Ersten Chat starten
 Schreibt einfach: "Ich möchte anfangen." Claude führt euch durch das
 Mission-Interview, wenn das die erste Sitzung ist.
 
-### Am Ende jeder Sitzung
+## Am Ende jeder Sitzung
 Claude gibt euch ein Artifact mit dem aktualisierten Stand aus. **Wichtig:**
 Herunterladen und in der Project-Knowledge die alte `ZUSTAND.md` damit
 ersetzen (alte Datei löschen, neue hochladen) — sonst startet die nächste
 Sitzung mit veraltetem Stand.
 
-### Wenn ihr fertig seid
+## Wenn ihr fertig seid
 Kein Aufräumen nötig — das Project bleibt bestehen, bis die Mission
-abgeschlossen ist oder ein neues Thema beginnt (dann: neues Project mit neuem
+abgeschlossen ist oder ein neues Thema beginnt (dann: neuer Ordner mit neuem
 Starter-Kit).
 ````
 
 ## Qualitätsprüfung
 
 Vor der Ausgabe prüfen:
-- [ ] `[THEMA]` und `[ZIELGRUPPE]` sind überall ersetzt, keine Platzhalter mehr übrig
-- [ ] Teil 1 (Custom Instructions) ist kurz genug fürs Eingabefeld (deutlich unter
-      8.000 Zeichen) und verweist auf ANLEITUNG.md/ZUSTAND.md statt die volle
-      Philosophie zu wiederholen
-- [ ] Teil 2 enthält Gedächtnis-Modell, Philosophie (Wissen/Fähigkeiten/Weisheit),
-      Lektions-Anforderungen, Mission-Interview, ZPD, die abgeschwächte
+- [ ] `[THEMA]` und `[ZIELGRUPPE]` sind in allen vier Dateien ersetzt, keine
+      Platzhalter mehr übrig
+- [ ] Es wurden wirklich **vier separate Dateien** in einem Ordner geschrieben, keine
+      kombinierte Datei zum manuellen Aufteilen
+- [ ] `custom-instructions.md` ist kurz genug fürs Custom-Instructions-Eingabefeld
+      (deutlich unter 8.000 Zeichen) und verweist auf ANLEITUNG.md/ZUSTAND.md statt
+      die volle Philosophie zu wiederholen
+- [ ] `ANLEITUNG.md` enthält Gedächtnis-Modell, Philosophie (Wissen/Fähigkeiten/
+      Weisheit), Lektions-Anforderungen, Mission-Interview, ZPD, die abgeschwächte
       Weisheits-/Community-Säule und Lernprotokoll-Regeln
-- [ ] Teil 3 ist ein wirklich leerer Startzustand (keine erfundene Mission, keine
-      Platzhalter-Lernprotokolle) und enthält das vollständige Stylesheet inkl. Quiz-CSS/JS
-- [ ] Teil 4 deckt **beide** Fälle ab: volljährige Einzelperson und
-      Minderjährige-im-Team-mit-Volljährigem
-- [ ] Teil 4 erklärt die Sitzungsende-Routine (Artifact herunterladen, ZUSTAND.md
-      in der Knowledge ersetzen) unmissverständlich
-- [ ] Ausgabe ist eine `.md`-Datei, kein docx; alle vier Teile sind einzeln
-      herauskopierbar
+- [ ] `ZUSTAND.md` ist ein wirklich leerer Startzustand (keine erfundene Mission,
+      keine Platzhalter-Lernprotokolle) und enthält das vollständige Stylesheet
+      inkl. Quiz-CSS/JS
+- [ ] `EINRICHTUNG.md` deckt **beide** Fälle ab: volljährige Einzelperson und
+      Minderjährige-im-Team-mit-Volljährigem, und benennt die exakten Dateinamen
+      zum Hochladen
+- [ ] `EINRICHTUNG.md` erklärt die Sitzungsende-Routine (Artifact herunterladen,
+      ZUSTAND.md in der Knowledge ersetzen) unmissverständlich
+- [ ] Alle vier Dateien sind reines Markdown (kein docx) und einzeln lesbar/hochladbar
