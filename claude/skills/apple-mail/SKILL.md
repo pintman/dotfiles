@@ -32,7 +32,7 @@ Die Inbox heißt **nicht** `"INBOX"` — je nach Account-Sprache/Typ z. B. `"Pos
 ```bash
 osascript -e '
 tell application "Mail"
-	set theAccount to account "marco@bakera.de"
+	set theAccount to account "<Account-Name>"
 	set output to ""
 	repeat with mb in mailboxes of theAccount
 		set output to output & (name of mb) & linefeed
@@ -49,7 +49,7 @@ Erst gezielt in einer bekannten Mailbox suchen (schnell), nicht pauschal über `
 ```bash
 osascript -e '
 tell application "Mail"
-	set theAccount to account "marco@bakera.de"
+	set theAccount to account "<Account-Name>"
 	set theInbox to mailbox "Posteingang" of theAccount
 	set foundMsgs to (messages of theInbox whose subject contains "Suchbegriff")
 	set output to ""
@@ -69,7 +69,7 @@ Inhalt einer konkreten Treffer-Mail:
 ```bash
 osascript -e '
 tell application "Mail"
-	set theAccount to account "marco@bakera.de"
+	set theAccount to account "<Account-Name>"
 	set theInbox to mailbox "Posteingang" of theAccount
 	set foundMsgs to (messages of theInbox whose subject contains "Suchbegriff")
 	set m to item 1 of foundMsgs
@@ -85,7 +85,7 @@ end tell
 ```bash
 osascript -e '
 tell application "Mail"
-	set theAccount to account "marco@bakera.de"
+	set theAccount to account "<Account-Name>"
 	set theInbox to mailbox "Posteingang" of theAccount
 	set foundMsgs to (messages of theInbox whose subject contains "Suchbegriff")
 	set m to item 1 of foundMsgs
@@ -112,4 +112,4 @@ end tell
 | Suche über `repeat with mb in mailboxes of theAccount` (alle Mailboxen) dauert >120s oder Mail.app wird unresponsive | Task abbrechen (`TaskStop`), Mail.app ggf. neu starten lassen, danach gezielt nur in einer bekannten Mailbox (z. B. `"Posteingang"`) suchen statt über alle Mailboxen zu iterieren |
 | `mailbox "INBOX" of account id ...` kann nicht gelesen werden (-1728) | Mailbox-Namen falsch geraten — erst Mailbox-Namen des Accounts auflisten (siehe oben), dann den tatsächlichen Namen verwenden (z. B. `"Posteingang"`) |
 | Text, der per `set content of theReply to "..."` gesetzt wurde, taucht kurz auf und verschwindet wieder / ist am Ende leer | Bekannte Einschränkung: Mail.app füllt den zitierten Text im WebView-Editor asynchron nach dem Öffnen des Fensters und überschreibt dabei per AppleScript gesetzten Inhalt — auch mit `delay` vor dem Setzen nicht zuverlässig behebbar. Property-basiertes Setzen von `content` bei Antwort-Fenstern vermeiden; stattdessen Fenster offen lassen (Cursor steht schon richtig) oder per `System Events`/`keystroke` tippen |
-| `System Events hat einen Fehler erhalten: osascript ist nicht berechtigt, Tastatureingaben zu senden (1002)` | Bedienungshilfen-Berechtigung fehlt. Benutzer muss sie manuell erteilen: Systemeinstellungen → Datenschutz & Sicherheit → Bedienungshilfen → den Prozess aktivieren, der `osascript` ausführt (z. B. Terminal). Bis dahin: Fenster nur öffnen, Marco tippt selbst |
+| `System Events hat einen Fehler erhalten: osascript ist nicht berechtigt, Tastatureingaben zu senden (1002)` | Bedienungshilfen-Berechtigung fehlt. Benutzer muss sie manuell erteilen: Systemeinstellungen → Datenschutz & Sicherheit → Bedienungshilfen → den Prozess aktivieren, der `osascript` ausführt (z. B. Terminal). Bis dahin: Fenster nur öffnen, Benutzer tippt selbst |

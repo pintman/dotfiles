@@ -38,7 +38,7 @@ ein, alles Weitere läuft als reiner Chat-Dialog.
 
 Der generierte Prompt ist **themen-/meilensteinunabhängig** — der Schüler nennt Fach,
 Thema und Meilenstein-Text zu Beginn des Chats selbst. Ein einziger generierter Prompt
-lässt sich damit für alle Testatkarten wiederverwenden; Marco gibt ihn einmalig an
+lässt sich damit für alle Testatkarten wiederverwenden; der Benutzer gibt ihn einmalig an
 Schüler weiter (z. B. Teams, Zusatzblatt zur Testatkarte, oder als Custom/Project
 Instructions in einem KI-Tool).
 
@@ -102,7 +102,7 @@ per Copy-Paste in einen Chat eingefügt werden, daher reines Markdown/Text.
 
 ### Schritt 4: Rückmeldung geben
 
-Kurze Vorschau des Prompts im Chat zeigen und Marco daran erinnern, wie er ihn an
+Kurze Vorschau des Prompts im Chat zeigen und den Benutzer daran erinnern, wie er ihn an
 Schüler weitergibt: als erste Nachricht in einem neuen Chat einfügen lassen, oder als
 Custom/Project Instructions in einem KI-Tool hinterlegen. Hinweis: der generierte Prompt
 ist wiederverwendbar für alle Testatkarten, keine Neugenerierung pro Thema nötig.

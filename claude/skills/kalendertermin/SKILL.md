@@ -5,7 +5,7 @@ description: "Sucht nach Terminen oder legt Termine im Apple Kalender (macOS Cal
 
 # Kalendertermin-Skill
 
-Legt Termine direkt im lokalen Apple Kalender (Calendar.app) per `osascript`/AppleScript an. Kein Google Calendar, keine anderen Kalender-Tools verwenden — Marco nutzt Apple Kalender als einzige Quelle.
+Legt Termine direkt im lokalen Apple Kalender (Calendar.app) per `osascript`/AppleScript an. Kein Google Calendar, keine anderen Kalender-Tools verwenden — der Benutzer nutzt Apple Kalender als einzige Quelle.
 
 ## Relevante Kalender
 
