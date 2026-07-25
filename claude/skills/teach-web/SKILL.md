@@ -1,23 +1,21 @@
 ---
 name: teach-web
 description: >
-  Erzeugt ein portables Starter-Kit (vier separate Dateien in einem Ordner) mit dem der
-  `teach`-Skill auch ohne Claude-Code-Subscription nutzbar wird — über die normale
-  Claude.ai-Weboberfläche (Projects, Knowledge, Artifacts). Gedacht für den
+  Erzeugt ein portables Starter-Kit (vier separate Dateien in einem Ordner) für einen
+  geführten Fernlern-Workspace über die normale Claude.ai-Weboberfläche (Projects,
+  Knowledge, Artifacts) — ganz ohne Claude-Code-Subscription. Gedacht für den
   Bildungsbereich: Schüler und Auszubildende richten sich damit selbst einen geführten
   Fernlern-Workspace zu einem Thema ein, mit Mission, Lernprotokollen und
   HTML-Lektionen als Artifacts, ganz ohne Dateisystemzugriff. Berücksichtigt, dass
   Claude.ai-Accounts laut Anthropics Nutzungsbedingungen erst ab 18 Jahren zulässig
   sind — minderjährige Lernende tun sich dafür mit einer volljährigen Person zusammen
-  und lernen als Team. Nutze diesen Skill, wenn der Nutzer den `teach`-Skill "im Web",
-  "über die Weboberfläche", "für Schüler ohne Claude Code" oder "für Schüler ohne
-  Subscription" verfügbar machen möchte, oder ein Selbstlern-/Fernlern-Kit für ein
+  und lernen als Team. Nutze diesen Skill, wenn der Nutzer ein geführtes Lernsetting
+  "im Web", "über die Weboberfläche", "für Schüler ohne Claude Code" oder "für Schüler
+  ohne Subscription" verfügbar machen möchte, oder ein Selbstlern-/Fernlern-Kit für ein
   bestimmtes Thema für Azubis/Schüler erstellen will — auch ohne das Wort "Skill".
-  Ergänzt den Skill `teach` (der für Nutzer mit Claude Code gedacht ist), ersetzt ihn
-  aber nicht — beide leben unabhängig nebeneinander. Ausgabe: vier Dateien in einem
-  Ordner (Custom-Instructions-Kurzanleitung, vollständige Rollen-/Philosophie-Datei,
-  leerer Startzustand samt Stylesheet, Einrichtungs-Anleitung für Schüler) — jede
-  Datei bereits unter dem Namen, den Claude.ai später erwartet.
+  Ausgabe: vier Dateien in einem Ordner (Custom-Instructions-Kurzanleitung, vollständige
+  Rollen-/Philosophie-Datei, leerer Startzustand samt Stylesheet, Einrichtungs-Anleitung
+  für Schüler) — jede Datei bereits unter dem Namen, den Claude.ai später erwartet.
 disable-model-invocation: true
 argument-hint: "Thema/Mission + Zielgruppe, z. B. 'Netzwerktechnik-Grundlagen, Azubis 1. Lehrjahr Fachinformatiker'"
 ---
@@ -26,14 +24,14 @@ argument-hint: "Thema/Mission + Zielgruppe, z. B. 'Netzwerktechnik-Grundlagen, A
 
 ## Ausgangslage
 
-Der Skill `teach` (siehe `../teach/SKILL.md`) baut auf autonomem Lesen/Schreiben eines
-Arbeitsverzeichnisses auf: `MISSION.md`, `RESOURCES.md`, `learning-records/*.md`,
-`lessons/*.html`, `assets/*`. Das setzt Claude Code (oder eine vergleichbare
-Coding-Umgebung mit Datei-/Bash-Zugriff) voraus.
+Ein geführtes Fernlern-Setting braucht normalerweise ein Arbeitsverzeichnis, das autonom
+gelesen und beschrieben wird: Mission, Ressourcenliste, Lernprotokolle, HTML-Lektionen,
+Assets. Das setzt Claude Code (oder eine vergleichbare Coding-Umgebung mit Datei-/
+Bash-Zugriff) voraus.
 
 Viele Schüler und Auszubildende haben das nicht — sie nutzen KI ausschließlich über die
-Weboberfläche. `teach-web` portiert die Philosophie des Original-Skills so, dass sie in
-einem normalen Claude.ai-Project funktioniert:
+Weboberfläche. `teach-web` überträgt diese Philosophie so, dass sie in einem normalen
+Claude.ai-Project funktioniert:
 
 - Statt eines Verzeichnisses gibt es **eine einzige Zustandsdatei** (`ZUSTAND.md`), die
   der/die Lernende in die Project-Knowledge hochlädt und nach jeder Sitzung durch eine
