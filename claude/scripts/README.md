@@ -25,3 +25,16 @@ Einbindung in `~/.claude/settings.json` (Symlink vorausgesetzt, daher
 ```
 
 Voraussetzung: `jq` muss installiert sein (`brew install jq`).
+
+## sync-matt-pocock-skills.sh
+
+Vergleicht die importierten Skills aus [mattpocock/skills](https://github.com/mattpocock/skills)
+(`to-tickets`, `to-spec`, `teach`, `implement`, `tdd`, `grilling`, `grill-me`,
+`setup-matt-pocock-skills`, `mp-code-review`) gegen den aktuellen Upstream-Stand
+und zeigt Abweichungen als Diff. Überschreibt nichts – die Übernahme einzelner
+Änderungen erfolgt manuell nach Prüfung. On-Demand-Aufruf, kein Scheduling; siehe
+`docs/adr/0002-matt-pocock-skills-kein-plugin.md`.
+
+```
+claude/scripts/sync-matt-pocock-skills.sh
+```
