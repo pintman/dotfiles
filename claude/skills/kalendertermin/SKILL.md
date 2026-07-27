@@ -1,6 +1,7 @@
 ---
 name: kalendertermin
-description: "Sucht nach Terminen oder legt Termine im Apple Kalender (macOS Calendar.app) per AppleScript/osascript an. Nutze diesen Skill, wenn ein Kalendereintrag, Termin, eine Buchungsbestätigung, einen Flug, eine Reise oder ein Ereignis in den Kalender eingetragen oder abgefragt werden soll — auch aus einem Screenshot, PDF oder Text heraus. Trigger: \"Kalendereintrag\", \"Termin erstellen\", \"trag das im Kalender ein\", \"mache dafür einen Termin\", \"in den Kalender\", \"schau in Kalender\"."
+description: "Sucht nach Terminen oder legt Termine im Apple Kalender (macOS Calendar.app) per AppleScript/osascript an — auch aus einem Screenshot, PDF oder Text heraus."
+disable-model-invocation: true
 ---
 
 # Kalendertermin-Skill

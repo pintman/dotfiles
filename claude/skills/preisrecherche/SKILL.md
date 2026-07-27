@@ -1,6 +1,7 @@
 ---
 name: preisrecherche
-description: "Recherchiert Preise für Elektronikartikel bei verschiedenen Händlern – insbesondere für öffentliche Beschaffungen, bei denen mindestens drei Angebote benötigt werden. Typische Trigger: \"Preisvergleich\", \"Angebote einholen\", \"Beschaffung\", \"Preise recherchieren\", \"günstigsten Anbieter finden\", oder wenn eine Liste von Artikeln angegeben wird, die bei Händlern wie Conrad, Reichelt, Alternate, AZ Delivery, Berrybase oder Voelkner gesucht werden sollen. Ergebnis ist immer eine Excel-Datei (.xlsx). Trigger auch, wenn der Nutzer sagt \"such mir Preise für...\" oder \"vergleich die Preise für...\" – selbst ohne explizite Erwähnung von Excel oder Händlern."
+description: "Recherchiert Preise für Elektronikartikel bei verschiedenen Händlern (z. B. Conrad, Reichelt, Alternate, AZ Delivery, Berrybase, Voelkner) – insbesondere für öffentliche Beschaffungen, bei denen mindestens drei Angebote benötigt werden. Ergebnis ist immer eine Excel-Datei (.xlsx)."
+disable-model-invocation: true
 ---
 
 # Preisrecherche-Skill

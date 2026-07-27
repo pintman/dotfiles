@@ -1,13 +1,12 @@
 ---
 name: webuntis-klausur
 description: >
-  Trägt eine Klausur/Klassenarbeit in WebUntis (`https://tbs1.webuntis.com`)
-  ein, per Chrome-Browserautomatisierung. Nutze diesen Skill IMMER, wenn ein
-  Klausurtermin/Klassenarbeit in Untis/WebUntis eingetragen, angelegt oder erfasst werden soll — auch
-  bei Formulierungen wie "trag die Klausur in Untis ein", "leg die Klassenarbeit in WebUntis an".
-  Login übernimmt Benutzer selbst, niemals Zugangsdaten eingeben oder danach fragen. Folgt einem
-  verifizierten Klickpfad — nicht davon abweichende Wege (z. B. direkte URL-Navigation mit
-  `?date=`) versuchen, diese funktionieren nachweislich nicht zuverlässig.
+  Trägt eine Klausur/Klassenarbeit in WebUntis ein, per 
+  Chrome-Browserautomatisierung. Login übernimmt Benutzer selbst, niemals
+  Zugangsdaten eingeben oder danach fragen. Folgt einem verifizierten Klickpfad —
+  nicht davon abweichende Wege (z. B. direkte URL-Navigation mit `?date=`)
+  versuchen, diese funktionieren nachweislich nicht zuverlässig.
+disable-model-invocation: true
 ---
 
 # Klausurtermin in WebUntis eintragen

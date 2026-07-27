@@ -2,11 +2,9 @@
 name: kursplan-generator
 description: >
   Erstellt aus Kurstitel und Niveau eine vollständige Kurslandkarte — Lernziele,
-  Wochenplan, Assessment-Plan und eine Signature-Aufgabe. Nutzen, wenn ein Kurs, Modul
-  oder eine Unterrichtsreihe von Grund auf geplant/entworfen werden soll, oder bei
-  Anfragen nach einem "Course Blueprint", "Syllabus-Gerüst", "Kursplan" bzw.
-  "Lernziele + Wochenplan" für etwas, das unterrichtet werden soll. Nicht für Benotung,
+  Wochenplan, Assessment-Plan und eine Signature-Aufgabe. Nicht für Benotung,
   Quiz-Erstellung oder Einzelstunden-Planung — dieser Skill arbeitet auf Kursebene.
+disable-model-invocation: true
 ---
 
 # Kursplan-Generator

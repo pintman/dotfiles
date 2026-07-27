@@ -3,10 +3,7 @@ name: wahr-falsch-quiz
 description: >
   Erstellt Wahr-Falsch-Quizze als Word-Dokument (.docx) im Microsoft Forms Import-Format,
   speziell für IT-Auszubildende (Fachinformatiker und Informationstechnische Assistenten).
-  Nutze diesen Skill immer wenn der Nutzer ein Quiz, eine Wissensüberprüfung, Aussagen zum
-  Einschätzen, True/False-Fragen oder ein Wahr-Falsch-Quiz zu einem IT-Thema erstellen möchte
-  - auch wenn das Wort Skill nicht fällt. Trigger auch bei Formulierungen wie
-  Erstell mir Fragen zu, Ich brauche ein Quiz über, Mach eine Wissensüberprüfung zu.
+disable-model-invocation: true
 ---
 
 # Wahr-Falsch-Quiz Skill

@@ -4,13 +4,7 @@ description: >
   Erstellt Testatkarten für Ausbildungs- und Schulprojekte.
   Eine Testatkarte ist ein strukturiertes Arbeitsblatt mit nummerierten Meilensteinen,
   die Schüler sequenziell bearbeiten und von einem Fachlehrer abzeichnen lassen.
-  Nutze diesen Skill immer wenn der Nutzer eine Testatkarte, ein Attestierungsblatt,
-  ein Meilenstein-Arbeitsblatt, eine Projektprüfungskarte oder ein ähnliches Dokument
-  für Schüler oder Auszubildende erstellen möchte.
-  Trigger auch bei Formulierungen wie "Erstell mir eine Testatkarte zu...",
-  "Ich brauche Meilensteine für ein Projekt über...",
-  "Mach ein Arbeitsblatt mit Abnahme-Checkliste für...",
-  "Erstelle ein Projekt-Testat für...".
+disable-model-invocation: true
 ---
 
 # Testatkarte – Skill

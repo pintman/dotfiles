@@ -1,20 +1,10 @@
 ---
 name: mqtt-animation
 description: >
-  Erstellt eine animierte SVG/SMIL-Visualisierung eines MQTT-Nachrichtenflusses
+  Erstellt eine animierte Visualisierung eines MQTT-Nachrichtenflusses
   (Publisher/Broker/Subscriber, benannte Topics) als eigenständige HTML-Datei,
-  veröffentlicht als Claude-Artifact. Erzwingt vor dem Bau eine verpflichtende
-  Klärung pro Topic (wer publiziert, wer abonniert, ist es retained) und folgt
-  danach einem festen, bewährten technischen Muster (SVG-foreignObject-Knoten,
-  SMIL-animateMotion-Paketanimation entlang exakter Pfade, Event-getriebene
-  JS-Choreografie, Terminal-Log- und Datenbanktabellen-Panel, Farbe pro Topic,
-  Hell/Dunkel-Theming, prefers-reduced-motion-Fallback, Pause/Weiter-Steuerung).
-  Nutze diesen Skill bei expliziten Animationswünschen zu MQTT-Broker/Topic-
-  Architekturen, z. B. "erstell eine Animation für diese MQTT-Architektur",
-  "visualisiere den Nachrichtenfluss über den Broker", "animier mir, wie die
-  Clients über MQTT kommunizieren". Nicht bei beiläufigen MQTT-Erwähnungen ohne
-  Animationswunsch, und nicht für Zustandsautomat-Anschauungsmaterial oder
-  allgemeine Architektur-/Klassendiagramme (dafür existieren andere Skills).
+  veröffentlicht als Claude-Artifact.
+disable-model-invocation: true
 ---
 
 # MQTT-Animation – Skill
@@ -53,9 +43,6 @@ muss vor dem Schreiben von Code feststehen:
    dafür interessiert.
 
 Bei Unklarheit in einem dieser drei Punkte aktiv nachfragen, nicht raten.
-Falscher Grund für Sorgfalt: in einer früheren Session wurden bei einem
-ähnlichen Szenario aus geratenen statt geklärten Nachrichtenfluss-Annahmen
-drei aufeinanderfolgende Architektur-Korrekturen am fertigen Ergebnis nötig.
 
 Ergebnis dieses Schritts: eine kurze Tabelle/Liste "Topic → Publisher(s) →
 Subscriber(s) → retained ja/nein", die dem Bau zugrunde liegt.
