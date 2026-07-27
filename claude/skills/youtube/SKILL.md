@@ -6,76 +6,47 @@ description: "Ermittelt Titel und Beschreibung von YouTube-Videos oder findet ei
 # YouTube-Skill
 
 Ruft Titel und Beschreibung eines YouTube-Videos ab bzw. findet ein Video innerhalb einer
-Playlist - ohne API-Key, nur mit `curl` und Python-Stdlib (`json`, `re`).
+Playlist - ohne API-Key, nur mit Python-Stdlib (`urllib`, `json`, `re`).
 
 **Wichtig:** `WebFetch` allein liefert bei YouTube-Videoseiten meist nicht das echte
-Beschreibungsfeld, sondern nur Footer-Boilerplate. Deshalb immer die Seite per `curl` direkt
-holen und das eingebettete JSON auswerten - nicht aus Titel/Thumbnail raten.
+Beschreibungsfeld, sondern nur Footer-Boilerplate. Deshalb immer die Skripte unten verwenden,
+die die Seite direkt holen und das eingebettete JSON auswerten - nicht aus Titel/Thumbnail raten.
 
 ## Fall 1: Direkter Video-Link vorhanden
 
-1. Video-ID aus der URL extrahieren (Parameter `v=` bzw. Teil nach `youtu.be/`).
-2. Seite holen und Beschreibung extrahieren:
-   ```bash
-   curl -s "https://www.youtube.com/watch?v=<ID>" -A "Mozilla/5.0" | grep -o '"shortDescription":"[^"]*"'
-   ```
-3. Titel und Beschreibung (JSON-escaped, also `\n` etc. beim Lesen beachten) als Basis für eine
-   kurze Zusammenfassung (1-2 Sätze) verwenden - nicht aus dem Titel/Thumbnail geraten, sondern
-   auf Basis des tatsächlichen Beschreibungstexts.
+```bash
+python3 scripts/video_info.py "<Video-URL-oder-ID>"
+```
+
+Gibt JSON mit `video_id`, `title`, `description` aus (Beschreibung bereits JSON-dekodiert,
+keine `\n`-Escapes mehr). Auf Basis des tatsächlichen Beschreibungstexts eine kurze
+Zusammenfassung (1-2 Sätze) formulieren - nicht aus Titel/Thumbnail raten.
 
 ## Fall 2: Nur ein Verweis auf eine Playlist (Video muss erst gefunden werden)
 
-Wenn eine Notiz/Anfrage nur auf eine Playlist verweist statt auf einen direkten Video-Link,
-zuerst das passende Video darin identifizieren:
+Wenn eine Notiz/Anfrage nur auf eine Playlist verweist statt auf einen direkten Video-Link:
 
-1. Playlist-HTML holen. Ohne Consent-Cookie liefert YouTube nur einen Redirect auf
-   `consent.youtube.com` mit leerem Body - deshalb Cookie mitschicken:
-   ```bash
-   curl -s "https://www.youtube.com/playlist?list=<PLAYLIST_ID>" -A "Mozilla/5.0" \
-     -H "Cookie: CONSENT=YES+cb; SOCS=CAI" -o playlist.html
-   ```
-2. Die Playlist-Items stecken im HTML in `var ytInitialData = {...};`. Ein Regex bis zum ersten
-   `;` schlägt fehl, weil das JSON selbst `;` in Strings enthalten kann - stattdessen ab der
-   Fundstelle mit Pythons `json.JSONDecoder().raw_decode(html, start)` parsen. Die früher
-   verwendete Struktur `playlistVideoRenderer` existiert in aktuellen YouTube-Ausgaben nicht
-   mehr; Playlist-Einträge stecken jetzt unter dem Schlüssel `lockupViewModel` - rekursiv
-   einsammeln. Je Eintrag:
-   - Video-ID: `lockupViewModel['contentId']`
-   - Titel: `lockupViewModel['metadata']['lockupMetadataViewModel']['title']['content']`
+```bash
+python3 scripts/playlist_search.py "<Playlist-URL-oder-ID>" "<Stichwort>"
+```
 
-   Beispiel-Snippet:
-   ```python
-   import json, re
+Gibt eine JSON-Liste aller Treffer (`video_id`, `title`) aus, deren Titel das Stichwort
+enthalten (case-insensitive). Ohne Stichwort-Argument werden alle Videos der Playlist gelistet -
+nützlich, wenn aus der Anfrage nicht klar hervorgeht, wonach gesucht werden soll.
 
-   html = open("playlist.html", encoding="utf-8").read()
-   start = html.index("var ytInitialData = ") + len("var ytInitialData = ")
-   data, _ = json.JSONDecoder().raw_decode(html, start)
-
-   def find_lockups(obj, out):
-       if isinstance(obj, dict):
-           if "lockupViewModel" in obj:
-               lvm = obj["lockupViewModel"]
-               try:
-                   title = lvm["metadata"]["lockupMetadataViewModel"]["title"]["content"]
-                   out.append((lvm["contentId"], title))
-               except (KeyError, TypeError):
-                   pass
-           for v in obj.values():
-               find_lockups(v, out)
-       elif isinstance(obj, list):
-           for v in obj:
-               find_lockups(v, out)
-
-   videos = []
-   find_lockups(data, videos)
-   ```
-3. Anhand des Titels/Stichworts aus der ursprünglichen Anfrage das passende Video identifizieren.
-4. Für dieses Video wie in Fall 1 die Beschreibung per `shortDescription`-Regex holen.
+Anhand des Titels/Stichworts aus der ursprünglichen Anfrage das passende Video identifizieren,
+dann für dieses Video `video_info.py` wie in Fall 1 aufrufen.
 
 ## Hinweise
 
-- Beide Fälle funktionieren komplett ohne YouTube-API-Key.
-- Nur `curl` + Python-Stdlib (`json`, `re`) nötig, keine externen Pakete.
+- Beide Skripte funktionieren komplett ohne YouTube-API-Key, nur mit Python-Stdlib - keine
+  externen Pakete nötig.
+- `playlist_search.py` schickt ein Consent-Cookie mit (`CONSENT=YES+cb; SOCS=CAI`) - ohne das
+  liefert YouTube nur einen Redirect auf `consent.youtube.com` mit leerem Body.
+- Playlist-Einträge stecken im HTML unter `var ytInitialData = {...};`, unter dem Schlüssel
+  `lockupViewModel` (die frühere Struktur `playlistVideoRenderer` existiert in aktuellen
+  YouTube-Ausgaben nicht mehr) - das Skript parst per `json.JSONDecoder().raw_decode` statt
+  per Regex bis zum ersten `;`, da das JSON selbst `;` in Strings enthalten kann.
 - Wird das gefundene Ergebnis in eine Notiz/Datei übernommen: Titel und kurze Zusammenfassung
   (nicht nur den nackten Link) eintragen, damit der Kontext auch ohne erneutes Nachschlagen
   verständlich bleibt.
