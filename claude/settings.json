@@ -1,0 +1,58 @@
+{
+  "permissions": {
+    "deny": [
+      "NotebookEdit",
+      "DesignSync",
+      "RemoteTrigger",
+      "PushNotification",
+      "EnterWorktree",
+      "ExitWorktree",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "mcp__claude_ai_Microsoft_365__*"
+    ],
+    "defaultMode": "default"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/require-venv-pip.sh"
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/block-git-push.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash \"$HOME/.claude/scripts/statusline-command.sh\""
+  },
+  "enabledPlugins": {
+    "document-skills@anthropic-agent-skills": true
+  },
+  "extraKnownMarketplaces": {
+    "anthropic-agent-skills": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/skills"
+      }
+    }
+  },
+  "language": "german",
+  "voice": {
+    "enabled": true,
+    "mode": "hold"
+  },
+  "autoMemoryEnabled": false,
+  "theme": "auto",
+  "agentPushNotifEnabled": true,
+  "voiceEnabled": true
+}
