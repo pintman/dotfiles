@@ -53,6 +53,7 @@
   },
   "autoMemoryEnabled": false,
   "theme": "auto",
+  "spinnerTipsEnabled": false,
   "agentPushNotifEnabled": true,
   "voiceEnabled": true
 }
