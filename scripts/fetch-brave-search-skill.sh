@@ -1,21 +1,23 @@
 #!/bin/bash
 # Holt den brave-search-Skill frisch von https://github.com/badlogic/pi-skills
-# und legt ihn unter ~/.agents/skills/brave-search ab. Überschreibt bestehende
-# Dateien vollständig (curl statt Copy-Paste, vermeidet Encoding-Korruption).
+# und legt ihn unter ~/.agents/skills/brave-search ab. Klont dafür flach in ein
+# Temp-Verzeichnis und kopiert den Unterordner rüber, statt Dateien einzeln
+# aufzuzählen – erfasst so auch künftige Unterordner im Skill.
 #
 # Aufruf: scripts/fetch-brave-search-skill.sh
 
 set -euo pipefail
 
 SKILL_DIR="$HOME/.agents/skills/brave-search"
-API_URL="https://api.github.com/repos/badlogic/pi-skills/contents/brave-search"
+REPO_URL="https://github.com/badlogic/pi-skills.git"
 
-mkdir -p "$SKILL_DIR"
+TMP_DIR="$(mktemp -d)"
+trap 'rm -rf "$TMP_DIR"' EXIT
 
-curl -sf "$API_URL" | jq -r '.[] | select(.type == "file") | "\(.name)\t\(.download_url)"' |
-while IFS=$'\t' read -r name url; do
-  echo "Hole $name ..."
-  curl -sf "$url" -o "$SKILL_DIR/$name"
-done
+git clone --depth 1 --quiet "$REPO_URL" "$TMP_DIR"
+
+rm -rf "$SKILL_DIR"
+mkdir -p "$(dirname "$SKILL_DIR")"
+cp -R "$TMP_DIR/brave-search" "$SKILL_DIR"
 
 echo "brave-search-Skill aktualisiert in $SKILL_DIR"
