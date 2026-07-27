@@ -12,6 +12,7 @@ SKILL_DIR="$HOME/.agents/skills/brave-search"
 REPO_URL="https://github.com/badlogic/pi-skills.git"
 
 TMP_DIR="$(mktemp -d)"
+# Räumt TMP_DIR auch bei Fehlern/Abbruch auf, nicht nur beim regulären Ende.
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 git clone --depth 1 --quiet "$REPO_URL" "$TMP_DIR"
