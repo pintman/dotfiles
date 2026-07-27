@@ -1,0 +1,46 @@
+{
+  "output": "preisrecherche.xlsx",
+  "haendler": ["Conrad", "Reichelt", "Alternate"],
+  "artikel": [
+    {
+      "name": "Raspberry Pi 4 Model B 4GB",
+      "angebote": {
+        "Conrad": {
+          "bezeichnung": "Raspberry Pi 4 B 4 GB RAM 1.5 GHz",
+          "preis_brutto": 59.9,
+          "link": "https://www.conrad.de/de/p/raspberry-pi-4-b-4-gb.html"
+        },
+        "Reichelt": {
+          "bezeichnung": "RASP PI 4B 4GB",
+          "preis_brutto": 57.5,
+          "link": "https://www.reichelt.de/raspberry-pi-4-b-4gb.html"
+        },
+        "Alternate": {
+          "bezeichnung": null,
+          "preis_brutto": null,
+          "link": null
+        }
+      }
+    },
+    {
+      "name": "USB-C Netzteil 5V 3A",
+      "angebote": {
+        "Conrad": {
+          "bezeichnung": "Offizielles Raspberry Pi USB-C Netzteil 5V/3A",
+          "preis_brutto": 9.9,
+          "link": "https://www.conrad.de/de/p/netzteil-usb-c-5v-3a.html"
+        },
+        "Reichelt": {
+          "bezeichnung": "USB-C NT 5V/3A",
+          "preis_brutto": 8.95,
+          "link": "https://www.reichelt.de/usb-c-netzteil-5v-3a.html"
+        },
+        "Alternate": {
+          "bezeichnung": "Netzteil USB-C 5V 3A schwarz",
+          "preis_brutto": 10.5,
+          "link": "https://www.alternate.de/netzteil-usb-c-5v-3a.html"
+        }
+      }
+    }
+  ]
+}

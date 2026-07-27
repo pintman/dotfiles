@@ -80,72 +80,58 @@ Für jeden Artikel und jeden Händler:
 
 ## Schritt 4: Excel-Tabelle erstellen
 
-Nutze `openpyxl` um die Tabelle zu erstellen. Lies dazu zuerst den xlsx-Skill (`document-skills:xlsx`) für die Einrichtung von `openpyxl` und allgemeine Excel-Erstellungsrichtlinien.
+Die komplette Formatierung (Farben, Spaltenbreiten, verbundene Header, Hyperlinks,
+MIN/INDEX-Formeln) sowie die Netto-Berechnung (Brutto ÷ 1,19) übernimmt
+[`scripts/generate.py`](scripts/generate.py). 
 
-### Tabellenstruktur
+Die recherchierten **Rohdaten** (Bezeichnung, Preis **brutto**, Link
+je Artikel und Händler) kommen als JSON-Konfiguration rein; die Netto-
+Preise, Formeln und das Layout erzeugt das Skript deterministisch.
 
-**Erste Zeile (Überschriften-Gruppe):** Händlernamen als verbundene Spalten
-**Zweite Zeile (Spaltenüberschriften):** Fixe Spalten
+### Vorgehen
 
-```
-Spalte A: Gesuchter Artikel
-Spalte B: Händler 1 – Artikelbezeichnung
-Spalte C: Händler 1 – Preis netto (€)
-Spalte D: Händler 1 – Preis brutto (€)
-Spalte E: Händler 1 – Link
-Spalte F: Händler 2 – Artikelbezeichnung
-... (Wiederholung für jeden Händler)
-Letzte Spalten: Günstigster Anbieter (netto), Günstigster Preis netto (€)
-```
+1. JSON-Konfiguration nach dem Schema von
+   [`scripts/example_config.json`](scripts/example_config.json) schreiben (siehe
+   Abschnitt "Konfigurationsschema" unten). Preis **immer als Bruttopreis** (Zahl, Punkt
+   als Dezimaltrennzeichen) eintragen — die Nettoumrechnung übernimmt das Skript.
+2. Skript ausführen:
+   ```bash
+   python3 scripts/generate.py --config config.json
+   ```
+   `--output pfad.xlsx` überschreibt optional das `output`-Feld aus der Config.
+3. Die Ausgabe des Skripts (Pfad, Anzahl Artikel, Händler, Anzahl "Nicht gefunden")
+   direkt für die Rückmeldung in Schritt 5 verwenden.
 
-### Formatierungsvorgaben
+### Konfigurationsschema
 
-```python
-from openpyxl import Workbook
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-from openpyxl.utils import get_column_letter
+Die Config ist ein JSON-Objekt mit folgenden Feldern:
 
-HAENDLER_FARBEN = {
-    "Conrad":    "FFD700",  # Gold
-    "Reichelt":  "4472C4",  # Blau
-    "Alternate": "ED7D31",  # Orange
-    "AZ Delivery": "70AD47", # Grün
-    "Berrybase": "9B59B6",  # Lila
-    "Voelkner":  "E74C3C",  # Rot
-}
+| Feld | Pflicht | Beschreibung |
+|---|---|---|
+| `output` | ja | Ausgabepfad der .xlsx-Datei |
+| `haendler` | ja | Liste der Händlernamen, bestimmt Spaltenreihenfolge (mind. 3 empfohlen) |
+| `artikel` | ja | Liste von `{"name": str, "angebote": {"<Händler>": {"bezeichnung": str\|null, "preis_brutto": float\|null, "link": str\|null}}}` |
 
-HEADER_FONT = Font(name="Arial", bold=True, color="FFFFFF", size=11)
-DATA_FONT   = Font(name="Arial", size=10)
-WRAP        = Alignment(wrap_text=True, vertical="top")
-```
+Ein Angebot, bei dem sowohl `bezeichnung` als auch `preis_brutto` `null` sind, gilt als
+nicht gefunden und erscheint als `"Nicht gefunden"` in der Tabelle sowie in der
+Nicht-gefunden-Zählung. Bekannte Händlerfarben (Conrad Gold, Reichelt Blau, Alternate
+Orange, AZ Delivery Grün, Berrybase Lila, Voelkner Rot) sind im Skript hinterlegt;
+unbekannte Händlernamen erhalten automatisch eine Fallback-Farbe.
 
-- **Zeilenhöhe:** Kopfzeilen 30px, Datenzeilen 40px
-- **Spaltenbreiten:** Artikel 35, Bezeichnung 30, Preis 14, Link 12 (gekürzt mit Hyperlink)
-- **Links:** Als Excel-Hyperlink einfügen (`ws.cell().hyperlink = url`), Text = "Link"
-- **Wechselnde Zeilenfärbung:** Gerade Zeilen leicht grau (`F2F2F2`)
-- **Händler-Gruppenheader:** Zellen verbinden, Händlerfarbe als Hintergrund
-- **Preisspalten:** Zahlenformat `#.##0,00 €` (deutsches Format)
-- **"Günstigster Anbieter":** Letzte Spaltengruppe, grüner Header (`70AD47`)
-
-### Günstigster Anbieter (Formel)
-Verwende Excel-Formeln (nicht Python-Berechnungen):
-- Günstigster Preis: `=MIN(C3, G3, K3, ...)` (alle Nettospalten)
-- Günstigster Anbieter: `=INDEX({"Conrad","Reichelt","Alternate",...}, MATCH(MIN(C3,G3,K3,...), (C3,G3,K3,...),0))`
+Referenz-Config mit vollständigem Beispiel:
+[`scripts/example_config.json`](scripts/example_config.json).
 
 ---
 
-## Schritt 5: Datei speichern und ausgeben
+## Schritt 5: Rückmeldung
 
-```python
-wb.save("preisrecherche.xlsx")
-```
-
-Datei im aktuellen Arbeitsverzeichnis speichern (oder an vom Nutzer vorgegebenem Pfad). Anschließend den Pfad im Chat mitteilen.
-
-Abschließend im Chat kurz zusammenfassen:
+Pfad der erzeugten Datei im Chat mitteilen. Anschließend kurz zusammenfassen (aus der
+Skript-Ausgabe von Schritt 4):
 - Wie viele Artikel wurden recherchiert
 - Bei welchen Händlern
-- Wie viele Artikel nicht gefunden wurden (falls zutreffend)
+- Wie viele Artikel nicht gefunden wurden (falls zutreffend) — bei weniger als 3
+  Angeboten für einen Artikel den Nutzer aktiv darauf hinweisen und weitere Händler
+  vorschlagen
 
 ---
 
