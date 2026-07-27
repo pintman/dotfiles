@@ -8,21 +8,14 @@
 set -euo pipefail
 
 SKILL_DIR="$HOME/.agents/skills/brave-search"
-BASE_URL="https://raw.githubusercontent.com/badlogic/pi-skills/main/brave-search"
-
-files=(
-  "SKILL.md"
-  "content.js"
-  "search.js"
-  "package.json"
-  "package-lock.json"
-)
+API_URL="https://api.github.com/repos/badlogic/pi-skills/contents/brave-search"
 
 mkdir -p "$SKILL_DIR"
 
-for f in "${files[@]}"; do
-  echo "Hole $f ..."
-  curl -sf "$BASE_URL/$f" -o "$SKILL_DIR/$f"
+curl -sf "$API_URL" | jq -r '.[] | select(.type == "file") | "\(.name)\t\(.download_url)"' |
+while IFS=$'\t' read -r name url; do
+  echo "Hole $name ..."
+  curl -sf "$url" -o "$SKILL_DIR/$name"
 done
 
 echo "brave-search-Skill aktualisiert in $SKILL_DIR"
