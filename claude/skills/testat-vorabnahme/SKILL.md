@@ -1,8 +1,8 @@
 ---
 name: testat-vorabnahme
 description: >
-  Erstellt einen wiederverwendbaren Meta-Prompt (Markdown-Datei) mit dem Schüler oder
-  Auszubildende in einem beliebigen KI-Chat (Claude, ChatGPT o. ä. über die Webseite)
+  Erstellt einen wiederverwendbaren Meta-Prompt (Markdown-Datei) mit dem Lernende
+  in einem beliebigen KI-Chat (Claude, ChatGPT o. ä. über die Webseite)
   selbst prüfen können, ob sie bereit für die Testat-Abnahme durch den Fachlehrer sind.
   Simuliert eine echte Testat-Abnahme inkl. Verständnisfragen und bewusst eingebautem
   kleinem Fehler, den der Schüler selbst finden und korrigieren muss. Nutze diesen Skill,
@@ -25,7 +25,7 @@ nachweisen kann — inklusive eines bewusst eingebauten kleinen Fehlers, den der
 live korrigieren muss.
 
 Viele Schüler gehen zur echten Abnahme, obwohl sie den Meilenstein noch nicht sicher
-beherrschen. `testat-vorabnahme` erzeugt dafür **keine Testatkarte**, sondern einen
+beherrschen. `testat-vorabnahme` erzeugt dafür einen
 eigenständigen **Meta-Prompt** (Markdown-Text), den Schüler als erste Nachricht in einen
 beliebigen KI-Chat einfügen. Die KI übernimmt danach die Rolle des prüfenden
 Fachlehrers und simuliert die Abnahme, bevor der Schüler zum echten Testat antritt.
