@@ -184,6 +184,13 @@ export default function smartFooter(pi: ExtensionAPI) {
 					if (totals.cacheWrite) statsParts.push(`W${formatTokens(totals.cacheWrite)}`);
 					if (totals.cost) statsParts.push(`$${totals.cost.toFixed(3)}`);
 
+					// Context window usage: show "used / total"
+					const contextWindow = ctx.model?.contextWindow;
+					if (contextWindow) {
+						const used = totals.input + totals.output;
+						statsParts.push(`ctx:${formatTokens(used)}/${formatTokens(contextWindow)}`);
+					}
+
 					const leftStats = statsParts.length > 0 ? statsParts.join(" ") : "ready";
 					const modelId = ctx.model?.id || "no-model";
 					const thinking = ctx.model?.reasoning && ctx.thinkingLevel && ctx.thinkingLevel !== "off"
