@@ -12,7 +12,7 @@
       "CronList",
       "mcp__claude_ai_Microsoft_365__*"
     ],
-    "defaultMode": "default"
+    "defaultMode": "auto"
   },
   "hooks": {
     "PreToolUse": [
@@ -47,13 +47,13 @@
     }
   },
   "language": "german",
+  "spinnerTipsEnabled": false,
   "voice": {
     "enabled": true,
     "mode": "hold"
   },
   "autoMemoryEnabled": false,
   "theme": "auto",
-  "spinnerTipsEnabled": false,
   "agentPushNotifEnabled": true,
   "voiceEnabled": true
 }
