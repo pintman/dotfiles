@@ -8,11 +8,14 @@ eingebunden werden.
 
 - `.bash_aliases`, `.emacs`, `.sqliterc`, `.wslconfig` – Shell-/Editor-/Tool-Configs,
   direkt per Symlink nach `~/`.
-- `claude/` – Claude-Code-Konfiguration, per Symlink nach `~/.claude` eingebunden:
-  - `CLAUDE.md` – globale Instruktionen für alle Projekte, die nach `~/.claude/CLAUDE.md` gelinkt wird.
-  - `hooks/` – Claude-Code-Hooks (nicht Git-Hooks – siehe Glossar unten).
-  - `scripts/` – Statusline u. Ä.
-  - `skills/` – Custom Skills, je ein Unterordner mit `SKILL.md`.
+- `claude/` – Claude-Code-Konfiguration. `~/.claude` selbst ist kein Symlink
+  (dort liegen Sessions, Cache etc.), sondern einzelne Einträge darin sind
+  per Symlink auf die entsprechenden Pfade in `claude/` eingebunden:
+  - `CLAUDE.md` – globale Instruktionen für alle Projekte, gelinkt nach `~/.claude/CLAUDE.md`.
+  - `settings.json` – Claude-Code-Settings, gelinkt nach `~/.claude/settings.json`.
+  - `hooks/` – Claude-Code-Hooks (nicht Git-Hooks – siehe Glossar unten), gelinkt nach `~/.claude/hooks`.
+  - `scripts/` – Statusline u. Ä., gelinkt nach `~/.claude/scripts`.
+  - `skills/` – Custom Skills, je ein Unterordner mit `SKILL.md`, gelinkt nach `~/.claude/skills`.
 - `.github/workflows/` – CI-Syntaxcheck für YAML/JSON/Frontmatter der Configs.
 
 ## Glossar
