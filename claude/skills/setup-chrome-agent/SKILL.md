@@ -17,66 +17,22 @@ CLI zur Chrome-Ansteuerung über CDP.
 
 ## Ablauf
 
-### 1. Bereits installiert?
+Alle Schritte (Erkennung, pipx-Check, Browser-Erkennung, Installation,
+Verifikation) stecken in einem Script. Einfach ausführen:
 
 ```
-command -v chrome-agent
+scripts/setup.sh
 ```
 
-Falls vorhanden: Version/Pfad kurz melden, fertig — nichts weiter tun.
+Exit-Codes und wie darauf zu reagieren ist:
 
-### 2. pipx verfügbar?
+| Exit | Bedeutung | Reaktion |
+|------|-----------|----------|
+| 0 | Erfolg — bereits installiert (`ALREADY_INSTALLED ...`) oder frisch installiert (`INSTALLED variant=... ...`) | Pfad/Version bzw. installierte Variante (chrome/vivaldi) kurz melden. Fertig. |
+| 2 | `pipx` fehlt (stderr: `ERROR_NO_PIPX ...`) | Nutzer informieren, dass `pipx` Voraussetzung ist (z. B. `brew install pipx` oder `apt install pipx`), dort abbrechen. Nicht eigenmächtig `pipx` installieren. |
+| 3 | Weder Vivaldi noch Chrome gefunden (stderr: `ERROR_NO_BROWSER ...`) | Nutzer informieren, dass chrome-agent einen der beiden Browser voraussetzt. Keine Installation versuchen, keinen Browser nachinstallieren. |
+| 4 | `pipx install` fehlgeschlagen (stderr: `ERROR_INSTALL_FAILED variant=...` + Fehlerausgabe) | Fehlerausgabe an den Nutzer weitergeben, nicht erneut versuchen. |
+| 5 | Verifikation nach Installation fehlgeschlagen (stderr: `ERROR_VERIFY_FAILED variant=...` + Installationsausgabe) | Ausgabe an den Nutzer weitergeben, nicht erneut versuchen. |
 
-```
-command -v pipx
-```
-
-Falls `pipx` fehlt: Nutzer informieren, dass `pipx` Voraussetzung für die
-Installation ist (z. B. `brew install pipx` oder `apt install pipx`), und dort
-abbrechen. Nicht eigenmächtig `pipx` installieren.
-
-### 3. Vivaldi installiert?
-
-```
-[[ -d "/Applications/Vivaldi.app" ]] || command -v vivaldi
-```
-
-Falls ja: den Vivaldi-Fork installieren, der zusätzlich Vivaldi
-unterstützt:
-
-```
-pipx install git+https://github.com/pintman/vivaldi-agent.git
-```
-
-Danach mit Schritt 5 (Verifikation) fortfahren.
-
-### 4. Sonst: Chrome installiert?
-
-```
-[[ -d "/Applications/Google Chrome.app" ]] || command -v google-chrome
-```
-
-Falls ja: Standard-chrome-agent installieren:
-
-```
-pipx install chrome-agent
-```
-
-Danach mit Schritt 5 (Verifikation) fortfahren.
-
-Falls weder Vivaldi noch Chrome gefunden wurden: dem Nutzer mitteilen,
-dass chrome-agent einen dieser Browser voraussetzt und keiner der beiden
-gefunden wurde. Keine Installation versuchen, keinen Browser
-nachinstallieren.
-
-### 5. Verifikation
-
-Nach der Installation:
-
-```
-command -v chrome-agent
-```
-
-Erfolg kurz bestätigen (installierte Variante: Standard oder
-Vivaldi-Fork). Schlägt die Verifikation fehl, Fehlerausgabe von `pipx
-install` an den Nutzer weitergeben statt erneut zu versuchen.
+Bei jedem Fehler-Exit (2/3/4/5): nicht eigenmächtig nachinstallieren oder
+reparieren, sondern dem Nutzer die konkrete Ursache melden.
