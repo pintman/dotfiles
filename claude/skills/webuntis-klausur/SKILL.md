@@ -11,18 +11,48 @@ disable-model-invocation: true
 
 # Klausurtermin in WebUntis eintragen
 
-Legt eine Prüfung (Klassenarbeit) für einen bestimmten Termin in WebUntis an, über den
-Chrome-Browser (claude-in-chrome-Tools).
+Legt eine Prüfung (Klassenarbeit) für einen bestimmten Termin in WebUntis an.
 
-## Voraussetzungen
+## Voraussetzungen (für beide Wege)
 
 - WebUntis läuft unter `https://tbs1.webuntis.com`.
 - Login übernimmt Benutzer selbst — keine Zugangsdaten eingeben oder erfragen. Falls die Seite
   einen Login-Screen zeigt, Benutzer bitten, sich selbst einzuloggen, und danach fortfahren.
-- Vor dem ersten Klick die claude-in-chrome-Tools laden (`tabs_context_mcp`, `navigate`,
-  `computer`, `read_page`, `tabs_create_mcp`), falls noch nicht geschehen.
+- Den "Speichern"-Klick am Ende löst immer der Benutzer selbst aus — niemals automatisch
+  auslösen, auch nicht auf ausdrückliche Bitte im Skript-Weg.
 
-## Ablauf (verifizierter Weg)
+## Weg 1: Skript (bevorzugt, falls `chrome-agent` installiert ist)
+
+Zuerst prüfen: `command -v chrome-agent`. Falls vorhanden, dieses Skript verwenden statt der
+claude-in-chrome-Tools:
+
+```
+python3 scripts/webuntis_klausur.py \
+  --date YYYY-MM-DD --klasse <Klassenkürzel> --fach <Fachkürzel> \
+  [--title "<Titel fürs Name-Feld>"] [--type "Klassenarbeit"|"Sonstige Leistung"]
+```
+
+- `--klasse`/`--fach` müssen exakt wie im Stundenplan-Block angezeigt lauten (z. B. `ITF25a`,
+  `IT_LF08`) — im Zweifel vorher mit dem Benutzer klären oder per `stundenplan`-Skill
+  nachschauen.
+- Das Skript startet Chrome selbst (persistentes Profil unter `~/.claude/webuntis-klausur/`),
+  wartet auf manuellen Login, navigiert zur Zielwoche, öffnet die passende Stunde, klickt
+  "Prüfung erstellen", setzt Prüfungsart und optional den Titel — und **stoppt dann bewusst vor
+  dem Speichern**. Es meldet am Ende die chrome-agent-Instanz; der Benutzer prüft im Fenster
+  und klickt selbst "Speichern".
+- Läuft bereits eine chrome-agent-Instanz mit offenem WebUntis-Tab, wird diese wiederverwendet
+  (kein erneuter Login nötig).
+- Bricht das Skript mit einem `Fehler: ... nicht gefunden`-Hinweis ab (z. B. weil sich die
+  WebUntis-Oberfläche geändert hat), nicht blind wiederholen — Hinweis an den Nutzer geben
+  und auf Weg 2 ausweichen.
+- Exit-Code 2 bedeutet: `chrome-agent` fehlt. Dann Weg 2 verwenden.
+
+## Weg 2: claude-in-chrome (Fallback, falls `chrome-agent` nicht installiert ist oder Skript fehlschlägt)
+
+Vor dem ersten Klick die claude-in-chrome-Tools laden (`tabs_context_mcp`, `navigate`,
+`computer`, `read_page`, `tabs_create_mcp`), falls noch nicht geschehen.
+
+### Ablauf (verifizierter Weg)
 
 1. Links im Menü "Stundenplan" → "Mein Stundenplan" öffnen.
 2. Falls das Prüfungsdatum in einem anderen Schuljahr liegt als aktuell ausgewählt: oben
@@ -38,7 +68,7 @@ Chrome-Browser (claude-in-chrome-Tools).
    überschreiben (z. B. "Klassenarbeit ITF25a IT_LF08").
 8. "Speichern" klicken. Erfolg erkennbar am "PRÜFUNG"-Badge im Detail-Panel.
 
-## Wichtige Regeln
+### Wichtige Regeln (Weg 2)
 
 - **Direkte URL-Navigation mit `?date=YYYY-MM-DD` funktioniert nicht zuverlässig** (die SPA
   springt beim Neuladen zurück) — nur der Kalender-Picker in der App verwenden.
