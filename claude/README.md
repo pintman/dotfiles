@@ -18,3 +18,9 @@ ln -s ~/proj/dotfiles/claude/settings.json ~/.claude/settings.json
 - `scripts/` – siehe [scripts/README.md](scripts/README.md).
 - `skills/` – siehe [skills/README.md](skills/README.md).
 - `settings.json` – globale Claude-Code-Settings (u. a. `permissions.deny`, hooks, voice, statusLine).
+
+## Sinnvolle Tools
+
+- [chrome-agent](https://github.com/captivus/chrome-agent): CLI zur Ansteuerung von Chrome (z.B. für WebUntis-Klausur-Skill). 
+  Installation: `pipx install chrome-agent`. Es gibt einen Fork, der auch 
+  Vivaldi als Browser unterstützt: `pipx install git+https://github.com/pintman/vivaldi-agent`.
