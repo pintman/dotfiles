@@ -100,25 +100,36 @@ Aus den Daten extrahieren:
 - aus `zusatzinfos`, soweit vorhanden: Quellenangaben, die einzelnen Meilensteinen
   zuordenbar sind (best effort — sonst als allgemeine Quellenliste übernehmen)
 
-### Schritt 2: Meta-Prompt aus dem Template befüllen
+### Schritt 2: Meta-Prompt per Skript erzeugen
 
-Das Template unten befüllen:
-- `[FACH]` durch die Fachrichtung/den Bildungsgang ersetzen (aus `klasse` ableiten oder
-  kurz erfragen, falls nicht eindeutig)
-- `[THEMA]` durch `thema` aus der Karte ersetzen
-- `[MEILENSTEINE_LISTE]` durch eine nummerierte Liste **aller** Meilensteine der Karte
-  ersetzen, Text wörtlich aus der Config/dem Markdown übernommen
-- `[QUELLEN_HINWEIS]` durch die auf der Karte angegebenen Quellen ersetzen, falls
-  vorhanden (sonst diesen Platzhalter-Satz entfernen)
+Das Template (fester Text, Platzhalter-Befüllung) ist themenunabhängig und liegt fest im
+Skript — dafür kein manuelles Abschreiben/Befüllen mehr, sondern:
 
-### Schritt 3: Als Markdown-Datei speichern
+```bash
+python3 scripts/generate.py \
+  --fach "<Fachrichtung/Bildungsgang>" \
+  --thema "<Thema aus der Karte>" \
+  --meilensteine "<nummerierte Liste aller Meilensteine, wörtlich aus der Karte>" \
+  --quellen-hinweis "<auf der Karte angegebene Quellen, falls vorhanden>" \
+  --out "<Zielordner>/Testat-Vorabnahme-Selbstcheck_<Thema>.md"
+```
 
-Dateiname mit Themabezug, z. B. `Testat-Vorabnahme-Selbstcheck_<Thema>.md`, im selben
-Ordner wie die zugehörige Testatkarte ablegen (nicht scratchpad/tmp). **Kein docx** — der
-Text soll 1:1 per Copy-Paste in einen Chat eingefügt werden, daher reines
-Markdown/Text.
+- `--fach`: aus `klasse` ableiten oder kurz erfragen, falls nicht eindeutig
+- `--thema`: wörtlich `thema` aus der Karte
+- `--meilensteine`: **alle** Meilensteine der Karte als nummerierte Liste, Text wörtlich
+  aus der Config/dem Markdown übernommen (mehrzeiliger String)
+- `--quellen-hinweis`: optional; weglassen, wenn die Karte keine zuordenbaren Quellen
+  angibt — das Skript entfernt den Platzhalter dann sauber
+- `--out`: Zielpfad **im selben Ordner wie die zugehörige Testatkarte** (nicht
+  scratchpad/tmp), Dateiname mit Themabezug. Ohne `--out` legt das Skript die Datei im
+  aktuellen Verzeichnis unter `Testat-Vorabnahme-Selbstcheck_<thema-slug>.md` an — bei
+  Unklarheit über den Speicherort vorher kurz nachfragen.
 
-### Schritt 4: Rückmeldung geben
+Das Skript bricht mit Fehlermeldung ab, falls die Zieldatei bereits existiert oder nach
+der Befüllung noch unaufgelöste Platzhalter übrig sind. Ausgabe ist immer reines
+Markdown (kein docx) — der Text soll 1:1 per Copy-Paste in einen Chat eingefügt werden.
+
+### Schritt 3: Rückmeldung geben
 
 Kurze Vorschau des Prompts im Chat zeigen und den Benutzer daran erinnern, wie er ihn an
 Schüler weitergibt: als erste Nachricht in einem neuen Chat einfügen lassen, oder als
@@ -130,94 +141,21 @@ laufen.
 
 ## Meta-Prompt-Template
 
-````markdown
-# Rolle
-
-Du bist ein erfahrener Fachlehrer für [FACH] an einer Berufsschule und simulierst mit
-einem Auszubildenden/Schüler eine **Testat-Abnahme** zum Projekt „[THEMA]“, bevor dieser
-zum echten Testat beim Fachlehrer antritt. Sei fair, aber genauso kritisch und gründlich
-wie bei einer echten Abnahme. Ziel ist es, dem Schüler ehrlich zu sagen, ob er bereit
-ist — nicht, ihn durchzuwinken.
-
-# Meilensteine dieser Testatkarte
-
-[MEILENSTEINE_LISTE]
-
-# Ablauf
-
-1. Frage den Schüler, welchen Meilenstein (Nummer aus der Liste oben) er heute
-   nachweisen möchte. Lies den zugehörigen Meilenstein-Text aus der Liste oben und lege
-   ihn deiner Prüfung zugrunde — frage nicht erneut danach.
-2. Frage nach den genutzten Informationsquellen. [QUELLEN_HINWEIS] Ein Chat mit einer
-   KI wie ChatGPT oder Claude zählt **nicht** als ausreichende Quelle — nennt der
-   Schüler nur das, frage gezielt nach einer zusätzlichen Quelle.
-3. Bitte den Schüler, sein Ergebnis einzureichen: Code als Text/Codeblock oder — bei
-   theoretischen Meilensteinen — seine Erklärung in eigenen Worten.
-4. Stelle 1–2 gezielte Verständnisfragen zu genau diesem Meilenstein (Konzepte, nicht
-   nur Syntax oder Auswendiggelerntes).
-5. Baue **genau einen** realistischen, kleinen Fehler in das Eingereichte ein (Syntax
-   oder Logikfehler bei Code; eine falsche Teilaussage bei Theorie), passend zum Inhalt
-   dieses Meilensteins. Verrate den Fehler nicht. Zeige dem Schüler die veränderte
-   Version und lass ihn den Fehler selbst finden und korrigieren. Nach zwei erfolglosen
-   Versuchen einen Tipp geben.
-6. Bewerte abschließend nach den folgenden Kriterien und gib ein klares Ergebnis.
-
-# Bewertungskriterien
-
-Vergib "bereit fürs Testat" nur, wenn **alle** zutreffenden Kriterien erfüllt sind:
-
-1. Ergebnis korrekt & vollständig (erfüllt die Anforderung des gewählten Meilensteins
-   ganz, nicht nur oberflächlich).
-2. Schüler kann sein Vorgehen in eigenen Worten erklären (kein reines Auswendiglernen).
-3. Schüler findet und korrigiert den eingebauten Fehler selbstständig (mit Tipp nach 2
-   Versuchen: "bereit mit Einschränkung" statt "bereit").
-4. Bei theoretischen Meilensteinen: Kernbegriffe werden an einem selbst gewählten
-   Beispiel korrekt erklärt.
-5. Schüler nennt nachvollziehbare Informationsquellen. Ein KI-Chat allein zählt nicht
-   als Quelle.
-
-Sind Kriterien nicht erfüllt: keine Ampel "bereit" vergeben, sondern konkret und
-stichpunktartig sagen, was noch fehlt.
-
-# Abschluss-Protokoll
-
-Gib am Ende **immer** folgenden kopierbaren Block aus:
-
-```
-## Testat-Selbstcheck-Protokoll
-Thema: [THEMA]
-Meilenstein: ...
-Quellen: ...
-Datum: ...
-Ergebnis: bereit / noch nicht bereit / bereit mit Einschränkung
-Stärken: ...
-Schwierigkeiten/Probleme: ...
-Offene Punkte: ...
-```
-
-Dabei gilt: "Schwierigkeiten/Probleme" beschreibt konkrete Stolpersteine während dieses
-Checks (z. B. den eingebauten Fehler erst mit Tipp gefunden, bei einer Verständnisfrage
-gehakt) — "Offene Punkte" beschreibt, was der Schüler bis zur echten Abnahme noch tun
-sollte.
-
-Ergänze darunter den Hinweis: "Dieses Protokoll ersetzt nicht die echte Abnahme durch
-den Fachlehrer, sondern dient der eigenen Vorbereitung."
-````
+Der vollständige Text des Meta-Prompts (Rolle, Ablauf, Bewertungskriterien,
+Abschluss-Protokoll) ist in [`scripts/generate.py`](scripts/generate.py) hinterlegt —
+dort ist er die einzige Quelle der Wahrheit. Inhaltliche Änderungen am Template (nicht
+nur an Fach/Thema/Meilensteinen) direkt im Skript vornehmen, nicht hier im SKILL.md
+duplizieren.
 
 ---
 
 ## Qualitätsprüfung
 
 Vor der Ausgabe prüfen:
-- [ ] Alle Meilensteine der Testatkarte sind wörtlich und vollständig in
-      `[MEILENSTEINE_LISTE]` übernommen (keine Auslassungen, keine Umformulierung)
-- [ ] `[FACH]` und `[THEMA]` sind ersetzt, keine Platzhalter mehr im Text
-- [ ] Alle fünf Bewertungskriterien sind wörtlich enthalten, inkl. Quellenangabe
-      (KI-Chat allein zählt nicht als Quelle)
-- [ ] Der Ablaufschritt "Fehler einbauen" ist enthalten, verweist auf den gewählten
-      Meilenstein und beschreibt, dass der Fehler nicht verraten wird
-- [ ] Das Abschluss-Protokoll enthält die Felder "Thema" und "Quellen"
-- [ ] Abschluss-Protokoll-Format ist enthalten, inkl. Hinweis, dass es die echte Abnahme
-      nicht ersetzt
+- [ ] `--meilensteine` enthält alle Meilensteine der Testatkarte wörtlich und
+      vollständig (keine Auslassungen, keine Umformulierung)
+- [ ] Skript ist ohne Fehler durchgelaufen (kein Abbruch wegen bestehender Zieldatei
+      oder unaufgelöster Platzhalter — das Skript prüft Platzhalter automatisch)
 - [ ] Ausgabe ist eine `.md`-Datei, kein docx
-- [ ] Dateiname und Speicherort lassen erkennen, zu welcher Testatkarte der Prompt gehört
+- [ ] Dateiname und Speicherort (`--out`) lassen erkennen, zu welcher Testatkarte der
+      Prompt gehört, und liegen im selben Ordner wie die Testatkarte
