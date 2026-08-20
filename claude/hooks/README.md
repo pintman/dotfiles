@@ -58,3 +58,31 @@ Voraussetzung: `jq` muss installiert sein (`brew install jq`).
 
 Test: `claude/hooks/test-block-git-push.sh` prüft nur das externe Verhalten
 (Exit-Code + `stderr`), nicht die interne Regex.
+
+## block-commit-session-url.sh
+
+Blockiert `git commit`-Aufrufe, deren Commit-Message eine
+Claude-Session-URL (`claude.ai/code/session_...`) enthält — z. B. die
+automatisch angehängte `Claude-Session:`-Zeile.
+
+Einbindung in `~/.claude/settings.json`:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "$HOME/.claude/hooks/block-commit-session-url.sh" }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Voraussetzung: `jq` muss installiert sein (`brew install jq`).
+
+Test: `claude/hooks/test-block-commit-session-url.sh` prüft nur das externe
+Verhalten (Exit-Code + `stderr`), nicht die interne Regex.
