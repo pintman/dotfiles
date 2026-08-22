@@ -1,6 +1,11 @@
 line-length = 110
 
 [lint]
+# E  = pycodestyle (Errors)
+# F  = Pyflakes (unused imports/variables, undefined names, ...)
+# I  = isort (Import-Reihenfolge/-Gruppierung)
+# UP = pyupgrade (veraltete Syntax auf aktuelle Python-Version anheben)
+# B  = flake8-bugbear (haeufige Bug-Muster)
 select = ["E", "F", "I", "UP", "B"]
 # E501 (Zeilenlaenge): steckt v. a. in eingebetteten JS-/AppleScript-Strings und
 # argparse-Hilfetexten, wo Umbrechen mehr schadet als nuetzt. Kein Formatter im
