@@ -1,0 +1,13 @@
+#!/bin/sh
+# Ruff-Check vor jedem Commit. Aktivieren mit: git config core.hooksPath git-hooks
+
+if ! command -v ruff >/dev/null 2>&1; then
+    echo "ruff nicht gefunden. Installieren mit: pipx install ruff" >&2
+    exit 1
+fi
+
+ruff check .
+if [ $? -ne 0 ]; then
+    echo "Ruff hat Probleme gefunden. Commit abgebrochen."
+    exit 1
+fi

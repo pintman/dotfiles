@@ -5,7 +5,6 @@ import json
 import re
 import sys
 import urllib.request
-from typing import Optional
 
 USER_AGENT = "Mozilla/5.0"
 
@@ -26,12 +25,12 @@ def fetch_html(video_id: str) -> str:
         return resp.read().decode("utf-8", errors="replace")
 
 
-def extract_title(html: str) -> Optional[str]:
+def extract_title(html: str) -> str | None:
     match = re.search(r'<meta name="title" content="([^"]*)"', html)
     return match.group(1) if match else None
 
 
-def extract_description(html: str) -> Optional[str]:
+def extract_description(html: str) -> str | None:
     match = re.search(r'"shortDescription":"((?:[^"\\]|\\.)*)"', html)
     if not match:
         return None

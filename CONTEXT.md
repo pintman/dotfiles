@@ -17,6 +17,9 @@ eingebunden werden.
   - `scripts/` – Statusline u. Ä., gelinkt nach `~/.claude/scripts`.
   - `skills/` – Custom Skills, je ein Unterordner mit `SKILL.md`, gelinkt nach `~/.claude/skills`.
 - `.github/workflows/` – CI-Syntaxcheck für YAML/JSON/Frontmatter der Configs.
+- `git-hooks/` – echter Git-Hook (pre-commit), prüft Python-Dateien mit ruff vor
+  jedem Commit. Aktivieren via `git config core.hooksPath git-hooks`. Nicht zu
+  verwechseln mit `claude/hooks/` (s. Glossar).
 
 ## Glossar
 

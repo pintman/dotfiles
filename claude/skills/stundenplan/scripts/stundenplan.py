@@ -6,7 +6,6 @@ Reines Python-Stdlib, kein pip install nötig.
 
 import argparse
 import os
-import re
 import sys
 import urllib.error
 import urllib.request
