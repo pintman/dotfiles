@@ -51,13 +51,30 @@ Entwurf über das Papierkorb-Icon oben rechts im Compose-Bereich).
 Läuft bereits eine chrome-agent-Instanz mit offenem Teams-Tab, wird diese
 wiederverwendet (kein erneuter Login nötig).
 
+## Team-/Kanalnamen ermitteln
+
+`--team`/`--channel` müssen exakt wie in Teams angezeigt geschrieben sein.
+Bei Unsicherheit oder wenn `teams_post.py` mit `Team '<Name>' nicht gefunden`
+oder `Kanal '<Name>' nicht gefunden` abbricht: **nicht raten**, sondern
+`scripts/teams_list.py` nutzen, um die exakten Namen aufzulisten (reine
+Leseoperation, ändert nichts):
+
+```
+python3 scripts/teams_list.py                 # alle Teams auflisten
+python3 scripts/teams_list.py --team "<Teamname>"   # Kanäle dieses Teams auflisten
+```
+
+Gibt eine Namensliste (einer pro Zeile) auf stdout aus; Statusmeldungen
+gehen nach stderr. Nutzt dieselbe chrome-agent-Instanz/-Session wie
+`teams_post.py`.
+
 ## Fehlerbehandlung
 
 | Problem | Lösung |
 |---|---|
 | Exit-Code 2 / `chrome-agent nicht gefunden` | Skill `setup-chrome-agent` ausführen, danach erneut versuchen |
-| `Fehler: Team '<Name>' nicht gefunden` | Teamname muss exakt wie in der Teams-Seitenleiste geschrieben sein (Groß-/Kleinschreibung, Sonderzeichen); bei Unsicherheit den Namen mit dem Benutzer klären, nicht raten |
-| `Fehler: Kanal '<Name>' nicht gefunden` | Kanalname prüfen, oder `--channel` weglassen für den Standardkanal "Allgemein" |
+| `Fehler: Team '<Name>' nicht gefunden` | `scripts/teams_list.py` (ohne `--team`) ausführen, um die exakte Schreibweise zu ermitteln — nicht raten |
+| `Fehler: Kanal '<Name>' nicht gefunden` | `scripts/teams_list.py --team "<Teamname>"` ausführen, um die exakten Kanalnamen zu ermitteln, oder `--channel` weglassen für den Standardkanal "Allgemein" |
 | Skript hängt bei "Warte auf manuellen Login" | Benutzer muss sich im geöffneten Chrome-Fenster einloggen; danach erkennt das Skript den Login automatisch am Nav-Eintrag "Aktivität" |
 | Nachrichtenfeld enthält den Inhalt nicht wie erwartet (z. B. bei mehrzeiligem `--content`) | Bekannte Einschränkung: Text wird per CDP `Input.insertText` als ein Block eingefügt; ob eingebettete Zeilenumbrüche als Absätze ankommen, ist nicht in jedem Fall verlässlich. Ergebnis im Chrome-Fenster prüfen und bei Bedarf manuell nachbessern, bevor veröffentlicht wird |
 | Bricht das Skript mit `Fehler: ... nicht gefunden` ab (z. B. weil sich die Teams-Oberfläche geändert hat) | Nicht blind wiederholen — Hinweis an den Benutzer geben |
