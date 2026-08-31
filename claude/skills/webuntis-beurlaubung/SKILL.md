@@ -69,8 +69,8 @@ python3 scripts/webuntis_beurlaubung.py \
 
 Das Skript gibt automatisch folgenden Vorlagentext für den Ausbildungsbetrieb aus:
 
-- Ein Schüler: „Die Beurlaubung für den Azubi \<Name\> wurde am \<Datum\> genehmigt, sofern
+- Ein Schüler: „Die Beurlaubung für den Azubi \<Name\> am \<Datum\> ist hiermit genehmigt, sofern
   keine angekündigten Leistungsüberprüfungen für den Tag vorliegen."
-- Mehrere Schüler: „Die Beurlaubung für die Azubis \<Name1\> und \<Name2\> wurde am \<Datum\>
-  genehmigt, sofern keine angekündigten Leistungsüberprüfungen für den Tag vorliegen."
-- Zeitraum statt Einzeltag: „... wurde vom \<Von\> bis \<Bis\> genehmigt, ..."
+- Mehrere Schüler: „Die Beurlaubung für die Azubis \<Name1\> und \<Name2\> am \<Datum\>
+  ist hiermit genehmigt, sofern keine angekündigten Leistungsüberprüfungen für den Tag vorliegen."
+- Zeitraum statt Einzeltag: „... ist für den Zeitraum vom \<Von\> bis \<Bis\> genehmigt, ..."
