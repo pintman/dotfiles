@@ -8,3 +8,10 @@ Configfiles for my setup
 - `pi/` – Konfiguration von [pi](https://pi.dev) (Coding Agent bzw. agent harness), s. [pi/README.md](pi/README.md).
 - `scripts/fetch-brave-search-skill.sh` – lädt den brave-search-Skill für pi herunter nach `~/.agents/skills/brave-search`.
 - `git-hooks/pre-commit` – Git-Hook, prüft Python-Dateien vor jedem Commit mit ruff. Aktivieren mit `git config core.hooksPath git-hooks`.
+
+
+## WSL
+
+- `.wslconfig` config for WSL, to be placed or linked in `/mnt/c/Users/USERNAME/`.
+
+On WSL (Windows Subsystem for Linux), install wslu (util funtions for WSL).
