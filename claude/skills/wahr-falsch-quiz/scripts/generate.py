@@ -70,11 +70,33 @@ def loesung_pfad(output_path):
     return f'{root}_LOESUNG{ext}'
 
 
+def loesung_txt_pfad(output_path):
+    root, _ = os.path.splitext(output_path)
+    return f'{root}.txt'
+
+
+def build_loesung_text(aussagen):
+    zeilen = []
+    for aussage in aussagen:
+        praefix = '[w] ' if aussage['antwort'] == 'wahr' else '[f] '
+        zeilen.append(praefix + aussage['text'])
+    return '\n'.join(zeilen) + '\n'
+
+
 def save(doc, path):
     out_dir = os.path.dirname(path)
     if out_dir:
         os.makedirs(out_dir, exist_ok=True)
     doc.save(path)
+    print(f'Gespeichert: {path}')
+
+
+def save_text(content, path):
+    out_dir = os.path.dirname(path)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(content)
     print(f'Gespeichert: {path}')
 
 
@@ -93,13 +115,19 @@ def main():
     aussagen = config['aussagen']
     output_path = args.output or config['output']
 
+    loesung_text = build_loesung_text(aussagen)
+
     if args.variante == 'schueler':
         save(build_document(aussagen, mit_loesung=False), output_path)
+        save_text(loesung_text, loesung_txt_pfad(loesung_pfad(output_path)))
     elif args.variante == 'lehrer':
         save(build_document(aussagen, mit_loesung=True), output_path)
+        save_text(loesung_text, loesung_txt_pfad(output_path))
     else:
+        loesung_docx_pfad = loesung_pfad(output_path)
         save(build_document(aussagen, mit_loesung=False), output_path)
-        save(build_document(aussagen, mit_loesung=True), loesung_pfad(output_path))
+        save(build_document(aussagen, mit_loesung=True), loesung_docx_pfad)
+        save_text(loesung_text, loesung_txt_pfad(loesung_docx_pfad))
 
 
 if __name__ == '__main__':

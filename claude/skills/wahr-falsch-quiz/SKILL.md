@@ -139,6 +139,22 @@ Das Skript übernimmt das automatisch über den `antwort`-Wert jeder Aussage in 
 | `schueler` | eine Datei unter `output` | nein |
 | `beide` | `output` (Schülerversion) + `output` mit `_LOESUNG`-Suffix (Lehrerversion) | nur bei der `_LOESUNG`-Datei |
 
+Zusätzlich erzeugt das Skript bei jedem Lauf – unabhängig von `--variante` und ohne
+weiteren Schalter – automatisch eine reine `.txt`-Lösungsdatei mit demselben Basisnamen
+wie die jeweilige Lösungs-Docx-Datei. Jede Zeile enthält nur Präfix und Aussagetext
+(keine Nummerierung, keine Erklärung), in der Reihenfolge der Config:
+
+```
+[w] Aussagetext eins
+[f] Aussagetext zwei
+```
+
+| `--variante` | Lösungs-Docx | zugehörige `.txt` |
+|---|---|---|
+| `lehrer` (Standard) | `output` | `output` mit `.txt` statt `.docx` |
+| `schueler` | – (Docx ohne Präfix) | `output` mit `_LOESUNG.txt`-Suffix |
+| `beide` | `output` mit `_LOESUNG`-Suffix | `output` mit `_LOESUNG.txt`-Suffix |
+
 Wichtig:
 - Die Lehrerversion ist **nicht** für den direkten Microsoft-Forms-Import an Schüler geeignet, da die Präfixe sonst als Teil der Frage übernommen würden. Sie dient nur der eigenen Übersicht des Lehrers, der die Präfixe vor der Verteilung selbst entfernt.
 - Wenn der Nutzer nicht explizit angibt, ob er die reine Schülerversion oder die Lehrerversion mit Präfix möchte: Standardmäßig `--variante lehrer` verwenden, da dies die vom Nutzer bevorzugte Arbeitsweise ist. Auf Wunsch `--variante beide` für beide Dateien parallel.
@@ -146,6 +162,7 @@ Wichtig:
 ### Schritt 5: Ausgabe
 
 - Dateiname: `quiz_[thema]_[anzahl]fragen.docx` (siehe `output` in der Config)
+- Zusätzlich immer eine `.txt`-Lösungsdatei (Namensschema siehe Tabelle oben)
 - Speicherpfad: aktuelles Arbeitsverzeichnis (siehe Hinweis in Schritt 3)
 - Dem Nutzer mitteilen:
   - Anzahl der Aussagen und Wahr/Falsch-Verteilung
