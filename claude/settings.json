@@ -12,7 +12,7 @@
       "CronList",
       "mcp__claude_ai_Microsoft_365__*"
     ],
-    "defaultMode": "plan"
+    "defaultMode": "default"
   },
   "hooks": {
     "PreToolUse": [
