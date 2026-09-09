@@ -40,6 +40,9 @@ Wenn der Nutzer ein Diagramm zu **bestehendem Code** möchte:
    Typannotationen und typisierten Konstruktor-Parametern), Methoden,
    Vererbung, Interfaces (`ABC`/`Protocol`), Enums und einfache Assoziationen
    zu extrahieren. Details siehe Abschnitt "Was der Extraktor erkennt".
+   Ergänze Datentypen, wenn der Python-Code keine Typ-Annotation enthält.
+   Erstelle keine Module oder Namespace-Boxen, bilde nur Klassen und 
+   deren Beziehungen ab.
 3. Weiter mit "Rendern" unten.
 
 ### Modus B: Aus Freitext-Beschreibung
