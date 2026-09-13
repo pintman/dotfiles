@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 
 ; https://melpa.org/#/getting-started
 (require 'package)
