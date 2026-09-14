@@ -1,13 +1,13 @@
 ---
 name: apple-mail
-description: "Liest und durchsucht E-Mails in Apple Mail (macOS Mail.app) per AppleScript/osascript und kann Antwort-Entwürfe öffnen. Nutze diesen Skill, wenn eine Mail in AppleMail/Mail.app gesucht, gelesen oder eine Antwort vorbereitet werden soll. Trigger: \"Mail in AppleMail\", \"zeig mir die Mail zu...\", \"suche die E-Mail von...\", \"erstelle eine Antwort für diese Mail\". Kein Versand — Mails werden nur gelesen bzw. Entwürfe nur geöffnet, nie automatisch abgeschickt."
+description: "Liest und durchsucht E-Mails in Apple Mail (macOS Mail.app) per AppleScript/osascript und kann Antwort- sowie neue Mail-Entwürfe öffnen. Nutze diesen Skill, wenn eine Mail in AppleMail/Mail.app gesucht, gelesen oder eine Antwort bzw. eine neue Mail vorbereitet werden soll. Trigger: \"Mail in AppleMail\", \"zeig mir die Mail zu...\", \"suche die E-Mail von...\", \"erstelle eine Antwort für diese Mail\", \"formuliere eine Mail an...\", \"schreib eine Mail an...\". Kein Versand — Mails werden nur gelesen bzw. Entwürfe nur geöffnet, nie automatisch abgeschickt."
 ---
 
 # Apple-Mail-Skill
 
 Liest E-Mails aus Mail.app per `scripts/apple_mail.py` (kapselt die AppleScript/osascript-Aufrufe). Kein IMAP/API-Zugriff, keine anderen Mail-Clients.
 
-**Mails werden nie automatisch versendet.** Antwort-Entwürfe nur öffnen (`reply`-Subcommand), niemals senden.
+**Mails werden nie automatisch versendet.** Antwort-Entwürfe (`reply`) und neue Mail-Entwürfe (`compose`) nur öffnen, niemals senden.
 
 Alle Aufrufe laufen über `python3 scripts/apple_mail.py <subcommand> ...` (reines Stdlib, kein pip install nötig). Bekannte Fallstricke (asynchrones Überschreiben von `content` bei Antwort-Fenstern, Account-Referenzierung per Name) sind im Skript selbst umgesetzt, nicht nur dokumentiert.
 
@@ -48,6 +48,14 @@ python3 scripts/apple_mail.py reply --account "<Account-Name>" --mailbox "Postei
 ```
 
 Öffnet das Antwortfenster (`reply ... with opening window`) — der Cursor steht bereits oberhalb des zitierten Originaltexts. Ohne `--text` bleibt das Fenster offen und der Nutzer tippt selbst. Mit `--text` tippt das Skript den Text per `System Events`/`keystroke` ein (erfordert Bedienungshilfen-Berechtigung, siehe Fehlerbehandlung) — **nicht** versuchen, den Text stattdessen über das `content`-Property zu setzen, das übernimmt das Skript bewusst nicht (siehe Fehlerbehandlung).
+
+## Neue Mail-Entwurf öffnen (nicht senden)
+
+```bash
+python3 scripts/apple_mail.py compose --account "<Account-Name>" --to "empfaenger@example.com" [--to "weiterer@example.com"] [--cc "cc@example.com"] --subject "Betreff" [--text "Mailtext"]
+```
+
+Erzeugt eine neue ausgehende Nachricht (`make new outgoing message`) und öffnet sie sichtbar. Anders als bei `reply` gibt es hier keinen asynchron nachgeladenen Zitat-Text — `--text` wird deshalb direkt über die `content`-Property gesetzt (kein `keystroke`-Workaround nötig, keine Bedienungshilfen-Berechtigung erforderlich). `--account` referenziert den Absender-Account per Name (aus `list-accounts`), nicht die E-Mail-Adresse. Ohne `--text` bleibt der Body leer und der Nutzer tippt selbst.
 
 ## Fehlerbehandlung
 

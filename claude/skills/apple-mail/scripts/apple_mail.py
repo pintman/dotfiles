@@ -126,6 +126,31 @@ end tell
         print("Text eingetippt (falls Bedienungshilfen-Berechtigung erteilt ist).")
 
 
+def cmd_compose(args: argparse.Namespace) -> None:
+    # Anders als bei reply gibt es hier keinen asynchron nachgeladenen Zitat-Text im
+    # WebView-Editor, der die content-Property wieder ueberschreiben koennte - eine neue
+    # Nachricht kann daher direkt mit content erzeugt werden (kein keystroke-Workaround noetig).
+    to_recipients = "".join(
+        f'\n        make new to recipient at end of to recipients with properties {{address:"{escape(addr)}"}}'
+        for addr in args.to
+    )
+    cc_recipients = "".join(
+        f'\n        make new cc recipient at end of cc recipients with properties {{address:"{escape(addr)}"}}'
+        for addr in (args.cc or [])
+    )
+    script = f"""
+tell application "Mail"
+    set newMsg to make new outgoing message with properties {{subject:"{escape(args.subject)}", content:"{escape(args.text or "")}", visible:true}}
+    tell newMsg
+        set sender to "{escape(args.account)}"{to_recipients}{cc_recipients}
+    end tell
+    activate
+end tell
+"""
+    sys.stdout.write(run_applescript(script))
+    print("Entwurfsfenster geöffnet (nicht gesendet).")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -158,6 +183,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optional: Antworttext per System Events eintippen (Bedienungshilfen-Berechtigung nötig)",
     )
 
+    p = sub.add_parser(
+        "compose", help="Neue Mail (kein Reply) als Entwurf öffnen (nie senden)"
+    )
+    p.add_argument("--account", required=True, help="Absender-Account-Name (aus list-accounts)")
+    p.add_argument("--to", required=True, action="append", help="Empfänger-Adresse (mehrfach angebbar)")
+    p.add_argument("--cc", action="append", help="Cc-Adresse (mehrfach angebbar)")
+    p.add_argument("--subject", required=True)
+    p.add_argument("--text", dest="text", help="Mailtext")
+
     return parser
 
 
@@ -169,6 +203,7 @@ def main() -> None:
         "search": cmd_search,
         "read": cmd_read,
         "reply": cmd_reply,
+        "compose": cmd_compose,
     }
     commands[args.command](args)
 
