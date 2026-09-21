@@ -1,4 +1,8 @@
 alias em='emacs -nw'
+# Emacs.app statt Konsolen-Client (nur macOS, nicht WSL)
+if [[ "$OSTYPE" == darwin* ]]; then
+    emacs() { open -na "Emacs" --args "$(cd "${1:-.}" && pwd)"; }
+fi
 
 # switch between brew architectures
 alias brew_arm='eval "$(/opt/homebrew/bin/brew shellenv)"'
