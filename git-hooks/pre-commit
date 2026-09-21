@@ -6,7 +6,13 @@ if ! command -v ruff >/dev/null 2>&1; then
     exit 1
 fi
 
-ruff check .
+# nur getrackte Dateien pruefen, sonst blockieren generierte/untracked Skill-Caches jeden Commit
+tracked_py_files=$(git ls-files -- '*.py')
+if [ -z "$tracked_py_files" ]; then
+    exit 0
+fi
+
+echo "$tracked_py_files" | xargs ruff check
 if [ $? -ne 0 ]; then
     echo "Ruff hat Probleme gefunden. Commit abgebrochen."
     exit 1
