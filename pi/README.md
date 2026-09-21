@@ -4,7 +4,7 @@ Dieser Ordner liegt im dotfiles-Repo und wird per Symlink unter
 `~/.pi` eingebunden:
 
 ```
-ln -s ~/proj/dotfiles/pi/extensions ~/.pi/agents
+ln -s ~/proj/dotfiles/pi/extensions ~/.pi/agent/extensions
 ```
 
 ## Inhalt
