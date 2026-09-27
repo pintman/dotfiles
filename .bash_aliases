@@ -14,3 +14,5 @@ alias pi="npx @earendil-works/pi-coding-agent"
 alias lt="npx localtunnel"
 
 alias utmctl="$HOME/data1/Applications/UTM.app/Contents/MacOS/utmctl"
+alias stundenplan="$HOME/proj/dotfiles/claude/skills/stundenplan/scripts/stundenplan.py"
+
