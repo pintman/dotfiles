@@ -85,7 +85,12 @@ einer JSON-Konfigurationsdatei.
 Vorgehen:
 1. JSON-Konfiguration nach dem Schema von [`example_config.json`](example_config.json) schreiben
    (siehe Abschnitt "Konfigurationsschema" unten).
-2. Skript ausführen (falls `python-docx` fehlt, in einer temporären virtuellen Umgebung installieren):
+2. Skript ausführen. Die Abhängigkeit (`python-docx`) steht als PEP-723-Header im
+   Skript, `pipx run` installiert sie automatisch:
+   ```bash
+   pipx run scripts/generate.py --config config.json
+   ```
+   Ohne pipx in einer temporären virtuellen Umgebung:
    ```bash
    python3 -m venv /tmp/testatkarte_venv
    /tmp/testatkarte_venv/bin/pip install --quiet python-docx

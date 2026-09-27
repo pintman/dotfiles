@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S pipx run
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["python-docx>=1,<2"]
+# ///
 """Erzeugt ein Wahr-Falsch-Quiz (.docx) im Microsoft-Forms-Import-Format aus einer JSON-Konfiguration.
 
 Aufruf:

@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S pipx run
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["openpyxl>=3,<4"]
+# ///
 """Erzeugt die Preisrecherche-Excel-Tabelle aus einer JSON-Konfiguration.
 
 Nimmt recherchierte Rohdaten (Bezeichnung/Preis brutto/Link je Artikel und
