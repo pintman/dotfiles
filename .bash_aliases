@@ -17,4 +17,6 @@ alias utmctl="$HOME/data1/Applications/UTM.app/Contents/MacOS/utmctl"
 alias stundenplan="$HOME/proj/dotfiles/claude/skills/stundenplan/scripts/stundenplan.py"
 
 # fd is fdfind on debian
-alias fd="command -v || fdfind"
+if ! command -v fd >/dev/null && command -v fdfind >/dev/null; then
+    alias fd='fdfind'
+fi
