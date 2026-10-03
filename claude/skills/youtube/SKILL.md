@@ -1,6 +1,6 @@
 ---
 name: youtube
-description: "Ermittelt Titel und Beschreibung von YouTube-Videos oder findet ein bestimmtes Video innerhalb einer YouTube-Playlist. Trigger: ein YouTube-Link kommt vor, \"YouTube-Link\", \"Video zusammenfassen\", \"was ist in dem Video\", \"in der Playlist suchen\", \"welches Video ist gemeint\"."
+description: "Ermittelt Titel und Beschreibung von YouTube-Videos oder findet ein bestimmtes Video innerhalb einer YouTube-Playlist."
 disable-model-invocation: true
 ---
 

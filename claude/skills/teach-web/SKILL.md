@@ -9,10 +9,7 @@ description: >
   HTML-Lektionen als Artifacts, ganz ohne Dateisystemzugriff. Berücksichtigt, dass
   Claude.ai-Accounts laut Anthropics Nutzungsbedingungen erst ab 18 Jahren zulässig
   sind — minderjährige Lernende tun sich dafür mit einer volljährigen Person zusammen
-  und lernen als Team. Nutze diesen Skill, wenn der Nutzer ein geführtes Lernsetting
-  "im Web", "über die Weboberfläche", "für Schüler ohne Claude Code" oder "für Schüler
-  ohne Subscription" verfügbar machen möchte, oder ein Selbstlern-/Fernlern-Kit für ein
-  bestimmtes Thema für Azubis/Schüler erstellen will — auch ohne das Wort "Skill".
+  und lernen als Team.
   Ausgabe: vier Dateien in einem Ordner (Custom-Instructions-Kurzanleitung, vollständige
   Rollen-/Philosophie-Datei, leerer Startzustand samt Stylesheet, Einrichtungs-Anleitung
   für Schüler) — jede Datei bereits unter dem Namen, den Claude.ai später erwartet.

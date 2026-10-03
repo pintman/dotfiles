@@ -4,9 +4,7 @@ description: >
   Prüft, ob chrome-agent (CLI zur Chrome-Ansteuerung, u. a. für den
   webuntis-klausur-Skill) installiert ist, und installiert es andernfalls
   passend zum vorhandenen Browser (Vivaldi-Fork oder Standard-chrome-agent
-  via pipx). Nutze diesen Skill, wenn chrome-agent eingerichtet oder
-  geprüft werden soll — Trigger: "chrome-agent installieren",
-  "chrome-agent einrichten", "setup-chrome-agent".
+  via pipx).
 disable-model-invocation: true
 ---
 

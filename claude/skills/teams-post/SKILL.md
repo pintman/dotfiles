@@ -5,9 +5,7 @@ description: >
   per Chrome-Browserautomatisierung über chrome-agent. Login übernimmt der
   Benutzer selbst, niemals Zugangsdaten eingeben oder danach fragen. Der Post
   wird nur bis zum ausgefüllten Entwurf vorbereitet — "Veröffentlichen"
-  klickt immer der Benutzer selbst, nie automatisch. Trigger: "Post in Teams
-  vorbereiten", "Teams-Beitrag erstellen", "in Teams-Kanal X posten",
-  "Beitrag in Microsoft Teams".
+  klickt immer der Benutzer selbst, nie automatisch.
 disable-model-invocation: true
 ---
 

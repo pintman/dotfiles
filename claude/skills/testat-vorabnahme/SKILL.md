@@ -6,12 +6,7 @@ description: >
   über die Webseite) selbst prüfen können, ob sie bereit für die Testat-Abnahme durch den
   Fachlehrer sind. Der Prompt enthält die Meilensteine der Karte bereits wörtlich
   eingebettet und simuliert eine echte Testat-Abnahme inkl. Verständnisfragen und bewusst
-  eingebautem kleinem Fehler, den der Schüler selbst finden und korrigieren muss. Nutze
-  diesen Skill, wenn der Nutzer einen Selbstcheck, eine Vorabnahme, eine Übungs-Abnahme
-  oder ein Werkzeug für Schüler zur Vorbereitung auf ein Testat erstellen möchte — auch
-  wenn das Wort "Skill" nicht fällt. Trigger auch bei Formulierungen wie "Erstell mir
-  einen Selbstcheck fürs Testat", "Ich brauche etwas, mit dem Schüler selbst prüfen
-  können, ob sie testat-reif sind", "Mach einen Prompt für eine Testat-Vorabnahme".
+  eingebautem kleinem Fehler, den der Schüler selbst finden und korrigieren muss.
   Benötigt als Input eine bestehende Testatkarte (Config oder Markdown des Skills
   `testatkarte`) — ohne diese kann kein spezifischer Prompt erzeugt werden. Ausgabe: eine
   .md-Datei mit dem fertigen, kopierbaren Meta-Prompt für genau diese eine Testatkarte.

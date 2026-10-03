@@ -10,11 +10,7 @@ description: >
   tabuer KI-Nutzung und einem Nachweis der Eigenleistung, eine Dokumentationspflicht
   (genutzte Prompts, Entscheidungen, KI-Fehler), ein Rubrik-Kriterium für den
   KI-Nutzungsprozess selbst sowie einen schüler:innen-tauglichen Erklärabsatz zur
-  Aufgabenphilosophie. Nutze diesen Skill, wenn eine Aufgabe "KI-resistent",
-  "KI-sicher" oder "AI-resilient" gemacht werden soll, eine Aufgabe gegen
-  KI-Abkürzungen redesignt werden soll, oder gefragt wird "wie mache ich diese
-  Aufgabe so, dass KI-Nutzung beim Lernen hilft statt sie zu ersetzen" — auch ohne
-  das Wort "Skill".
+  Aufgabenphilosophie.
 disable-model-invocation: true
 ---
 

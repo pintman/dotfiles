@@ -8,10 +8,6 @@ description: >
   einer Klassenstruktur. Diagramme orientieren sich bewusst nah am UML-Standard
   (Sichtbarkeit +/-/#, {static}/{abstract}, Vererbung vs. Interface-Realisierung,
   Multiplizität, Enums) statt am PlantUML-Hausstil.
-  Nutze diesen Skill, wenn der Nutzer ein Klassendiagramm, UML-Diagramm,
-  Strukturdiagramm zu Python-Code erstellen möchte, oder Formulierungen wie
-  "erstell ein Klassendiagramm für...", "visualisiere die Klassenstruktur von...",
-  "mach mir ein UML-Diagramm zu..." verwendet.
 disable-model-invocation: true
 ---
 
