@@ -179,6 +179,30 @@ def click_selector(instance: str, selector: str, what: str, timeout: float = 15)
     return pos
 
 
+TEAMS_GRID = '[data-tid="teams-grid-view"]'
+ALL_TEAMS_BUTTON = 'button[data-track-action-scenario="schoolAppNavigateToAllTeams"]'
+TEAMS_APP_BUTTON = 'button[aria-label^="Teams ("]'
+
+
+def goto_team_list(instance: str) -> None:
+    """Wechselt zur Kachelansicht 'Alle Teams' — aus einem Team heraus oder aus einer anderen App."""
+    if evaluate(instance, f"!!document.querySelector({js_str(TEAMS_GRID)})"):
+        return
+    pos = find_by_selector(instance, ALL_TEAMS_BUTTON)
+    if not pos:
+        pos = wait_for(lambda: find_by_selector(instance, TEAMS_APP_BUTTON), what="Teams-App-Button")
+        click(instance, pos["x"], pos["y"])
+        time.sleep(0.6)
+        if evaluate(instance, f"!!document.querySelector({js_str(TEAMS_GRID)})"):
+            return
+        pos = wait_for(lambda: find_by_selector(instance, ALL_TEAMS_BUTTON), what="Button 'Alle Teams'")
+    click(instance, pos["x"], pos["y"])
+    wait_for(
+        lambda: evaluate(instance, f"!!document.querySelector({js_str(TEAMS_GRID)})"),
+        what="Team-Liste",
+    )
+
+
 def wait_ready(instance: str, timeout: float = 20) -> None:
     wait_for(
         lambda: evaluate(instance, "document.readyState") == "complete",
@@ -241,11 +265,7 @@ def main() -> None:
     screenshot(instance, debug_dir, "00_start")
 
     print("Wechsle zur Team-Liste ...")
-    try:
-        click_text(instance, "Alle Teams", what="Link 'Alle Teams'", timeout=5)
-        time.sleep(0.5)
-    except StepError:
-        pass  # ggf. schon auf der Team-Liste
+    goto_team_list(instance)
     screenshot(instance, debug_dir, "01_alle_teams")
 
     print(f"Öffne Team '{args.team}' ...")

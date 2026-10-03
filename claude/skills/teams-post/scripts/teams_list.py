@@ -143,6 +143,43 @@ def click_text(instance: str, text: str, what: str | None = None, timeout: float
     return pos
 
 
+def find_by_selector(instance: str, selector: str):
+    expr = f"""
+    (() => {{
+      const el = document.querySelector({js_str(selector)});
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 || r.height === 0) return null;
+      return {{x: Math.round(r.left + r.width/2), y: Math.round(r.top + r.height/2)}};
+    }})()
+    """
+    return evaluate(instance, expr)
+
+
+TEAMS_GRID = '[data-tid="teams-grid-view"]'
+ALL_TEAMS_BUTTON = 'button[data-track-action-scenario="schoolAppNavigateToAllTeams"]'
+TEAMS_APP_BUTTON = 'button[aria-label^="Teams ("]'
+
+
+def goto_team_list(instance: str) -> None:
+    """Wechselt zur Kachelansicht 'Alle Teams' — aus einem Team heraus oder aus einer anderen App."""
+    if evaluate(instance, f"!!document.querySelector({js_str(TEAMS_GRID)})"):
+        return
+    pos = find_by_selector(instance, ALL_TEAMS_BUTTON)
+    if not pos:
+        pos = wait_for(lambda: find_by_selector(instance, TEAMS_APP_BUTTON), what="Teams-App-Button")
+        click(instance, pos["x"], pos["y"])
+        time.sleep(0.6)
+        if evaluate(instance, f"!!document.querySelector({js_str(TEAMS_GRID)})"):
+            return
+        pos = wait_for(lambda: find_by_selector(instance, ALL_TEAMS_BUTTON), what="Button 'Alle Teams'")
+    click(instance, pos["x"], pos["y"])
+    wait_for(
+        lambda: evaluate(instance, f"!!document.querySelector({js_str(TEAMS_GRID)})"),
+        what="Team-Liste",
+    )
+
+
 def wait_ready(instance: str, timeout: float = 20) -> None:
     wait_for(
         lambda: evaluate(instance, "document.readyState") == "complete",
@@ -223,11 +260,7 @@ def main() -> None:
         wait_for_login(instance, args.login_timeout)
 
     print("Wechsle zur Team-Liste ...", file=sys.stderr)
-    try:
-        click_text(instance, "Alle Teams", what="Link 'Alle Teams'", timeout=5)
-        time.sleep(0.5)
-    except StepError:
-        pass  # ggf. schon auf der Team-Liste
+    goto_team_list(instance)
 
     if args.team:
         print(f"Öffne Team '{args.team}' ...", file=sys.stderr)
