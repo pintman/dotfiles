@@ -1,6 +1,7 @@
 ---
 name: apple-mail
 description: "Liest und durchsucht E-Mails in Apple Mail (macOS Mail.app) per AppleScript/osascript und kann Antwort- sowie neue Mail-Entwürfe öffnen. Nutze diesen Skill, wenn eine Mail in AppleMail/Mail.app gesucht, gelesen oder eine Antwort bzw. eine neue Mail vorbereitet werden soll. Trigger: \"Mail in AppleMail\", \"zeig mir die Mail zu...\", \"suche die E-Mail von...\", \"erstelle eine Antwort für diese Mail\", \"formuliere eine Mail an...\", \"schreib eine Mail an...\". Kein Versand — Mails werden nur gelesen bzw. Entwürfe nur geöffnet, nie automatisch abgeschickt."
+disable-model-invocation: true
 ---
 
 # Apple-Mail-Skill

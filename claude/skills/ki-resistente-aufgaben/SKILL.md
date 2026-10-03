@@ -15,6 +15,7 @@ description: >
   KI-Abkürzungen redesignt werden soll, oder gefragt wird "wie mache ich diese
   Aufgabe so, dass KI-Nutzung beim Lernen hilft statt sie zu ersetzen" — auch ohne
   das Wort "Skill".
+disable-model-invocation: true
 ---
 
 # AI-Resilient Assignment Designer

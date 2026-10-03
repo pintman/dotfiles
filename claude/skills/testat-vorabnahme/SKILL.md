@@ -15,6 +15,7 @@ description: >
   Benötigt als Input eine bestehende Testatkarte (Config oder Markdown des Skills
   `testatkarte`) — ohne diese kann kein spezifischer Prompt erzeugt werden. Ausgabe: eine
   .md-Datei mit dem fertigen, kopierbaren Meta-Prompt für genau diese eine Testatkarte.
+disable-model-invocation: true
 ---
 
 # Testat-Vorabnahme – Skill

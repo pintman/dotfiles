@@ -12,6 +12,7 @@ description: >
   Strukturdiagramm zu Python-Code erstellen möchte, oder Formulierungen wie
   "erstell ein Klassendiagramm für...", "visualisiere die Klassenstruktur von...",
   "mach mir ein UML-Diagramm zu..." verwendet.
+disable-model-invocation: true
 ---
 
 # Klassendiagramm-Skill
