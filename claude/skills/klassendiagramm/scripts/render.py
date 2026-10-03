@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Rendert eine PlantUML-Datei ueber den oeffentlichen PlantUML-Server zu SVG und PNG.
 
-Nutzt ausschliesslich urllib (Stdlib) - kein pip-Install, keine venv noetig.
+Nutzt ausschliesslich urllib (Stdlib).
 """
 import argparse
 import sys

@@ -94,16 +94,10 @@ Preise, Formeln und das Layout erzeugt das Skript deterministisch.
    [`scripts/example_config.json`](scripts/example_config.json) schreiben (siehe
    Abschnitt "Konfigurationsschema" unten). Preis **immer als Bruttopreis** (Zahl, Punkt
    als Dezimaltrennzeichen) eintragen — die Nettoumrechnung übernimmt das Skript.
-2. Skript ausführen. Die Abhängigkeit (`openpyxl`) steht als PEP-723-Header im
-   Skript, `pipx run` installiert sie automatisch:
+2. Skript mit `pipx run` ausführen. Die Abhängigkeit (`openpyxl`) steht als PEP-723-Header
+   im Skript, `pipx run` installiert sie automatisch:
    ```bash
    pipx run scripts/generate.py --config config.json
-   ```
-   Ohne pipx in einer temporären virtuellen Umgebung:
-   ```bash
-   python3 -m venv /tmp/preisrecherche_venv
-   /tmp/preisrecherche_venv/bin/pip install --quiet openpyxl
-   /tmp/preisrecherche_venv/bin/python scripts/generate.py --config config.json
    ```
    `--output pfad.xlsx` überschreibt optional das `output`-Feld aus der Config.
 3. Die Ausgabe des Skripts (Pfad, Anzahl Artikel, Händler, Anzahl "Nicht gefunden")
