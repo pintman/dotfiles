@@ -20,3 +20,7 @@ alias stundenplan="$HOME/proj/dotfiles/claude/skills/stundenplan/scripts/stunden
 if ! command -v fd >/dev/null && command -v fdfind >/dev/null; then
     alias fd='fdfind'
 fi
+
+# OpenSpec-Dashboard, alle 5s aktualisiert
+alias openspec-dash='watch -c -n 5 "FORCE_COLOR=1 openspec view"'
+
