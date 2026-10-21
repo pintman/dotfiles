@@ -16,7 +16,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 ENV_VAR = "DISCORD_WEBHOOK_URL"
@@ -107,7 +107,7 @@ def build_embed(args: argparse.Namespace) -> dict | None:
     if not embed:
         return None
     if args.timestamp:
-        embed["timestamp"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        embed["timestamp"] = datetime.now(UTC).isoformat(timespec="seconds")
 
     total = sum(
         len(s)
