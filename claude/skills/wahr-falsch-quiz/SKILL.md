@@ -1,15 +1,16 @@
 ---
 name: wahr-falsch-quiz
 description: >
-  Erstellt Wahr-Falsch-Quizze als Word-Dokument (.docx) im Microsoft Forms Import-Format,
-  speziell für IT-Auszubildende (Fachinformatiker und Informationstechnische Assistenten).
+  Erstellt Wahr-Falsch-Quizze als Text-Lösungsdatei (.txt) für IT-Auszubildende
+  (Fachinformatiker und Informationstechnische Assistenten). Word-Dokument (.docx) im
+  Microsoft Forms Import-Format nur auf ausdrückliche Nachfrage.
 disable-model-invocation: true
 ---
 
 # Wahr-Falsch-Quiz Skill
 
 ## Zweck
-Dieser Skill erstellt Wahr-Falsch-Quizze für IT-Auszubildende (Fachinformatiker und Informationstechnische Assistenten). Die Ausgabe ist ein Word-Dokument (.docx), das direkt in Microsoft Forms importiert werden kann.
+Dieser Skill erstellt Wahr-Falsch-Quizze für IT-Auszubildende (Fachinformatiker und Informationstechnische Assistenten). Standardausgabe ist **nur eine Text-Datei (.txt)** mit `[w]`/`[f]`-Präfix pro Aussage. Ein Word-Dokument (.docx), das direkt in Microsoft Forms importiert werden kann, wird **nur erzeugt, wenn der Nutzer ausdrücklich danach fragt** (Word, docx, Forms-Import).
 
 ## Punktesystem
 - Richtige Antwort (Wahr/Falsch korrekt eingeschätzt): **+1 Punkt**
@@ -60,9 +61,12 @@ Erstelle 10–20 Aussagen nach diesen Regeln:
 - ✅ Verschiedene Themenaspekte abgedeckt?
 - ✅ Dem Ausbildungsstand angemessen?
 
-### Schritt 3: Word-Dokument erstellen
+### Schritt 3: Datei erstellen
 
-#### Format (Microsoft Forms-kompatibel)
+Standard: nur `.txt` (`--variante text`, Default des Skripts). Das Docx-Format unten ist nur
+relevant, wenn der Nutzer ausdrücklich ein Word-Dokument möchte.
+
+#### Docx-Format (Microsoft Forms-kompatibel, nur auf Nachfrage)
 
 Microsoft Forms erkennt beim Import nur bestimmte Aufzählungsformate. Das Dokument muss **Plain-Text-Nummerierungen** verwenden — keine automatischen Word-Listen, sondern hartcodierte Präfixe im Text:
 
@@ -91,12 +95,12 @@ Vorgehen:
    ```bash
    pipx run scripts/generate.py --config config.json
    ```
-   - `--output pfad.docx` überschreibt optional das `output`-Feld aus der Config.
-   - `--variante schueler|lehrer|beide` steuert, welche Version(en) erzeugt werden
-     (Standard: `lehrer`, siehe Abschnitt "Lehrerversion" unten).
+   - `--output pfad` überschreibt optional das `output`-Feld aus der Config.
+   - `--variante text|schueler|lehrer|beide` steuert, welche Version(en) erzeugt werden
+     (Standard: `text` = nur `.txt`, siehe Abschnitt "Varianten" unten).
 
 **Wichtig:**
-- Den Ausgabepfad (`output` in der Config bzw. `quiz_THEMA_NNfragen.docx`) mit dem
+- Den Ausgabepfad (`output` in der Config, z. B. `quiz_THEMA_NNfragen.txt`) mit dem
   tatsächlichen Thema und der Anzahl der Fragen befüllen.
 - Standardmäßig im aktuellen Arbeitsverzeichnis speichern. Falls der Nutzer einen anderen
   Speicherort nennt oder im aktuellen Verzeichnis kein sinnvoller Ablageort ist, vorher nachfragen.
@@ -107,69 +111,55 @@ Die Config ist ein JSON-Objekt mit folgenden Feldern:
 
 | Feld | Pflicht | Beschreibung |
 |---|---|---|
-| `output` | ja | Ausgabepfad der .docx-Datei |
+| `output` | ja | Ausgabepfad; Endung wird bei `text` durch `.txt` ersetzt, bei Docx-Varianten `.docx` verwenden |
 | `aussagen` | ja | Liste von `{"text": str, "antwort": "wahr"\|"falsch", "erklaerung": str}` |
 
 `erklaerung` ist pro Aussage optional, aber empfohlen – sie wird für die Lösungstabelle im
-Chat (Schritt 4) verwendet und fließt nicht in das Docx selbst ein.
+Chat (Schritt 4) verwendet und fließt nicht in die Dateien ein.
 
 Referenz-Config mit vollständigem Beispiel: [`example_config.json`](example_config.json).
 
 ### Schritt 4: Lösungsblatt im Chat ausgeben
 
-Nach der Docx-Erstellung: Gib eine übersichtliche Lösungstabelle im Chat aus:
+Nach der Datei-Erstellung: Gib eine übersichtliche Lösungstabelle im Chat aus:
 
 | Nr. | Aussage (gekürzt) | Antwort | Erklärung |
 |-----|-------------------|---------|-----------|
 | 1   | ...               | Wahr    | ...       |
 
-### Lehrerversion mit Lösungs-Präfix (auf Wunsch)
+### Varianten
 
-Der Nutzer bevorzugt für die eigene Kontrolle/Vorbereitung eine **Lehrer-Lösungsversion** des Dokuments: Statt (oder zusätzlich zur) Lösungstabelle im Chat wird jeder Aussage im Docx-Text selbst ein Präfix vorangestellt:
-- `[w]` für wahre Aussagen
-- `[f]` für falsche Aussagen
-
-Das Skript übernimmt das automatisch über den `antwort`-Wert jeder Aussage in der Config
-(kein manuelles Einfügen der Präfixe nötig). Gesteuert wird das über `--variante`:
-
-| `--variante` | Erzeugt | Präfix im Text |
-|---|---|---|
-| `lehrer` (Standard) | eine Datei unter `output` | ja, `[w]`/`[f]` |
-| `schueler` | eine Datei unter `output` | nein |
-| `beide` | `output` (Schülerversion) + `output` mit `_LOESUNG`-Suffix (Lehrerversion) | nur bei der `_LOESUNG`-Datei |
-
-Zusätzlich erzeugt das Skript bei jedem Lauf – unabhängig von `--variante` und ohne
-weiteren Schalter – automatisch eine reine `.txt`-Lösungsdatei mit demselben Basisnamen
-wie die jeweilige Lösungs-Docx-Datei. Jede Zeile enthält nur Präfix und Aussagetext
-(keine Nummerierung, keine Erklärung), in der Reihenfolge der Config:
+Die `.txt`-Lösungsdatei enthält pro Zeile nur Präfix und Aussagetext (keine Nummerierung,
+keine Erklärung), in der Reihenfolge der Config. Präfix aus dem `antwort`-Wert:
+`[w]` = wahr, `[f]` = falsch.
 
 ```
 [w] Aussagetext eins
 [f] Aussagetext zwei
 ```
 
-| `--variante` | Lösungs-Docx | zugehörige `.txt` |
+| `--variante` | Docx | `.txt` |
 |---|---|---|
-| `lehrer` (Standard) | `output` | `output` mit `.txt` statt `.docx` |
-| `schueler` | – (Docx ohne Präfix) | `output` mit `_LOESUNG.txt`-Suffix |
-| `beide` | `output` mit `_LOESUNG`-Suffix | `output` mit `_LOESUNG.txt`-Suffix |
+| `text` (Standard) | – | `output` mit `.txt`-Endung |
+| `lehrer` | `output` mit `[w]`/`[f]`-Präfix | `output` mit `.txt` statt `.docx` |
+| `schueler` | `output` ohne Präfix (Forms-Import) | `output` mit `_LOESUNG.txt`-Suffix |
+| `beide` | `output` (Schüler) + `output` mit `_LOESUNG`-Suffix (Lehrer) | `output` mit `_LOESUNG.txt`-Suffix |
 
 Wichtig:
-- Die Lehrerversion ist **nicht** für den direkten Microsoft-Forms-Import an Schüler geeignet, da die Präfixe sonst als Teil der Frage übernommen würden. Sie dient nur der eigenen Übersicht des Lehrers, der die Präfixe vor der Verteilung selbst entfernt.
-- Wenn der Nutzer nicht explizit angibt, ob er die reine Schülerversion oder die Lehrerversion mit Präfix möchte: Standardmäßig `--variante lehrer` verwenden, da dies die vom Nutzer bevorzugte Arbeitsweise ist. Auf Wunsch `--variante beide` für beide Dateien parallel.
+- **Standard ist immer `--variante text`.** Docx-Varianten nur verwenden, wenn der Nutzer ausdrücklich ein Word-Dokument / docx / Forms-Import verlangt. Ohne Angabe, welche Docx-Version: `schueler` für Forms-Import, `lehrer` für eigene Übersicht, `beide` auf Wunsch.
+- Die Lehrerversion ist **nicht** für den direkten Microsoft-Forms-Import geeignet, da die Präfixe sonst als Teil der Frage übernommen würden.
 
 ### Schritt 5: Ausgabe
 
-- Dateiname: `quiz_[thema]_[anzahl]fragen.docx` (siehe `output` in der Config)
-- Zusätzlich immer eine `.txt`-Lösungsdatei (Namensschema siehe Tabelle oben)
+- Dateiname: `quiz_[thema]_[anzahl]fragen.txt` (bei Docx-Wunsch zusätzlich `.docx`, siehe Tabelle oben)
 - Speicherpfad: aktuelles Arbeitsverzeichnis (siehe Hinweis in Schritt 3)
 - Dem Nutzer mitteilen:
   - Anzahl der Aussagen und Wahr/Falsch-Verteilung
-  - Hinweis: Dokument direkt in Microsoft Forms importierbar
+  - Nur bei Docx-Ausgabe: Hinweis, dass das Dokument direkt in Microsoft Forms importierbar ist
 
 ---
 
-## Microsoft Forms Import-Anleitung
+## Microsoft Forms Import-Anleitung (nur bei Docx-Ausgabe)
 
 1. Microsoft Forms öffnen → **Neues Quiz**
 2. Oben rechts **„…"** → **„Fragen importieren"**

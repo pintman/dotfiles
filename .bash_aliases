@@ -23,3 +23,9 @@ fi
 
 alias bat="batcat"
 
+# OpenSpec-Dashboard, alle 5s aktualisiert
+alias openspec-dash='watch -c -n 5 "FORCE_COLOR=1 openspec view"'
+
+# Briefings
+alias pap-briefing='cd ~/proj/pap && claude /briefing'
+alias pa-briefing='cd ~/oned/proj/pa && claude /briefing'

@@ -136,6 +136,9 @@
  gptel-backend ; Github Copilot
  (gptel-make-gh-copilot "Copilot"))
 
+; .folk-Dateien als TCL öffnen
+(add-to-list 'auto-mode-alist '("\\.folk\\'" . tcl-mode))
+
 ; keyboard remapping
 (global-set-key (kbd "S-SPC") 'dabbrev-expand)
 

@@ -59,5 +59,6 @@
   "autoMemoryEnabled": false,
   "theme": "auto",
   "agentPushNotifEnabled": true,
-  "voiceEnabled": true
+  "voiceEnabled": true,
+  "awaySummaryEnabled": false
 }

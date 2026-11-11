@@ -3,10 +3,12 @@
 # requires-python = ">=3.10"
 # dependencies = ["python-docx>=1,<2"]
 # ///
-"""Erzeugt ein Wahr-Falsch-Quiz (.docx) im Microsoft-Forms-Import-Format aus einer JSON-Konfiguration.
+"""Erzeugt ein Wahr-Falsch-Quiz aus einer JSON-Konfiguration.
+
+Standard: nur Text-Lösungsdatei (.txt). Docx im Microsoft-Forms-Import-Format nur per --variante.
 
 Aufruf:
-    python generate.py --config config.json [--output pfad.docx] [--variante schueler|lehrer|beide]
+    python generate.py --config config.json [--output pfad] [--variante text|schueler|lehrer|beide]
 
 Siehe example_config.json für das erwartete Schema.
 """
@@ -15,9 +17,6 @@ import argparse
 import json
 import os
 import sys
-
-from docx import Document
-from docx.shared import Pt
 
 INTRO = (
     "Beurteile die Korrektheit der folgenden Aussagen. "
@@ -47,6 +46,9 @@ def load_config(path):
 
 
 def build_document(aussagen, mit_loesung):
+    from docx import Document
+    from docx.shared import Pt
+
     doc = Document()
 
     style = doc.styles['Normal']
@@ -105,13 +107,13 @@ def save_text(content, path):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Erzeugt ein Wahr-Falsch-Quiz (.docx) aus einer JSON-Konfiguration.')
+    parser = argparse.ArgumentParser(description='Erzeugt ein Wahr-Falsch-Quiz aus einer JSON-Konfiguration.')
     parser.add_argument('--config', required=True, help='Pfad zur JSON-Konfigurationsdatei')
-    parser.add_argument('--output', help='Ausgabepfad (.docx); überschreibt "output" aus der Config')
+    parser.add_argument('--output', help='Ausgabepfad; überschreibt "output" aus der Config')
     parser.add_argument(
-        '--variante', choices=['schueler', 'lehrer', 'beide'], default='lehrer',
-        help='schueler = ohne Lösungspräfix (Forms-Import), lehrer = mit [w]/[f]-Präfix (Standard), '
-             'beide = beide Dateien erzeugen',
+        '--variante', choices=['text', 'schueler', 'lehrer', 'beide'], default='text',
+        help='text = nur .txt-Lösungsdatei (Standard), schueler = Docx ohne Lösungspräfix (Forms-Import), '
+             'lehrer = Docx mit [w]/[f]-Präfix, beide = beide Docx-Dateien erzeugen',
     )
     args = parser.parse_args()
 
@@ -121,7 +123,9 @@ def main():
 
     loesung_text = build_loesung_text(aussagen)
 
-    if args.variante == 'schueler':
+    if args.variante == 'text':
+        save_text(loesung_text, loesung_txt_pfad(output_path))
+    elif args.variante == 'schueler':
         save(build_document(aussagen, mit_loesung=False), output_path)
         save_text(loesung_text, loesung_txt_pfad(loesung_pfad(output_path)))
     elif args.variante == 'lehrer':
