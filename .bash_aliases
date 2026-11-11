@@ -20,3 +20,6 @@ alias stundenplan="$HOME/proj/dotfiles/claude/skills/stundenplan/scripts/stunden
 if ! command -v fd >/dev/null && command -v fdfind >/dev/null; then
     alias fd='fdfind'
 fi
+
+alias bat="batcat"
+
