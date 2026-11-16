@@ -6,6 +6,7 @@ Reines Python-Stdlib, kein pip install nötig.
 
 import argparse
 import os
+import re
 import sys
 import urllib.error
 import urllib.request
@@ -102,6 +103,21 @@ def parse_dt(line: str) -> datetime:
     return datetime.strptime(value, "%Y%m%dT%H%M%S")
 
 
+def is_klausur(ev: dict) -> bool:
+    return "[KA]" in ev.get("summary", "") or "[KA]" in ev.get("description", "")
+
+
+def is_aufsicht(ev: dict) -> bool:
+    # Gleiche Bedingung wie in format_event: Termine ohne SUMMARY sind Aufsichten.
+    return not ev.get("summary")
+
+
+def has_klasse(ev: dict, klassen: list[str]) -> bool:
+    # Exakter Token-Vergleich, damit "ITA24a" nicht auf "ITA24ab" passt.
+    tokens = {t.lower() for t in re.findall(r"[A-Za-z0-9]+", ev.get("summary", ""))}
+    return any(k.lower() in tokens for k in klassen)
+
+
 def format_event(ev: dict) -> str:
     start = ev["dtstart"].strftime("%H:%M")
     end = ev["dtend"].strftime("%H:%M") if "dtend" in ev else "?"
@@ -132,6 +148,13 @@ def main() -> None:
     parser.add_argument("--from", dest="date_from", help="Startdatum YYYY-MM-DD")
     parser.add_argument("--to", dest="date_to", help="Enddatum YYYY-MM-DD")
     parser.add_argument("--days", type=int, help="Anzahl Tage ab heute (Alternative zu --from/--to)")
+    parser.add_argument("--klausuren", action="store_true", help="Nur Klausuren ([KA]) anzeigen")
+    parser.add_argument("--aufsichten", action="store_true", help="Nur Aufsichten anzeigen")
+    parser.add_argument(
+        "--klasse",
+        action="append",
+        help="Nur Termine dieser Klasse (z. B. ITA24a); mehrfach angebbar",
+    )
     args = parser.parse_args()
 
     today = date.today()
@@ -150,11 +173,28 @@ def main() -> None:
     by_day: dict[date, list[dict]] = {}
     for ev in events:
         d = ev["dtstart"].date()
-        if start <= d <= end:
-            by_day.setdefault(d, []).append(ev)
+        if not (start <= d <= end):
+            continue
+        if (args.klausuren or args.aufsichten) and not (
+            (args.klausuren and is_klausur(ev)) or (args.aufsichten and is_aufsicht(ev))
+        ):
+            continue
+        if args.klasse and not has_klasse(ev, args.klasse):
+            continue
+        by_day.setdefault(d, []).append(ev)
 
     if not by_day:
-        print(f"Keine Termine zwischen {start.isoformat()} und {end.isoformat()}.")
+        if args.klausuren and args.aufsichten:
+            what = "Klausuren oder Aufsichten"
+        elif args.klausuren:
+            what = "Klausuren"
+        elif args.aufsichten:
+            what = "Aufsichten"
+        else:
+            what = "Termine"
+        if args.klasse:
+            what += " für " + ", ".join(args.klasse)
+        print(f"Keine {what} zwischen {start.isoformat()} und {end.isoformat()}.")
         return
 
     for d in sorted(by_day):

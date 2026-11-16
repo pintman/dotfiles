@@ -35,8 +35,14 @@ Skills verwenden.
    - keine Angabe → kein `--from`/`--to`/`--days` nötig, Skript nutzt Default (heute bis +7 Tage)
 2. Skript ausführen:
    ```
-   python3 scripts/stundenplan.py --url "<Feed-URL oben>" [--from YYYY-MM-DD --to YYYY-MM-DD | --days N]
+   python3 scripts/stundenplan.py --url "<Feed-URL oben>" [--from YYYY-MM-DD --to YYYY-MM-DD | --days N] [--klausuren] [--aufsichten] [--klasse KLASSE ...]
    ```
+   - Fragen nach einer Klasse ("wann habe ich die ITA24a") → `--klasse ITA24a` (mehrfach angebbar,
+     Groß-/Kleinschreibung egal, erfasst auch Kombi-Klassen). Mit `--klausuren` kombinierbar →
+     nur Klausuren dieser Klasse.
+   - Fragen nach Klausuren ("wann sind Klausuren") → `--klausuren` (nur Termine mit `[KA]`)
+   - Fragen nach Aufsichten ("wann habe ich Aufsicht") → `--aufsichten`
+   - Beide kombinierbar (ODER). Bei Klausuren ohne Zeitangabe längeren Zeitraum wählen (z. B. `--days 60`).
 3. Ausgabe direkt als Antwort übernehmen (bereits nach Datum gruppiert, eine Zeile pro
    Termin: Uhrzeit, Kurs/Bezeichnung, Raum). Tage ohne Termine erscheinen nicht in der
    Ausgabe.
