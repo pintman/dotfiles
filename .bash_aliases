@@ -21,7 +21,10 @@ if ! command -v fd >/dev/null && command -v fdfind >/dev/null; then
     alias fd='fdfind'
 fi
 
-alias bat="batcat"
+# bat is batcat on debian, bat on mac (brew)
+if ! command -v bat >/dev/null && command -v batcat >/dev/null; then
+    alias bat='batcat'
+fi
 
 # OpenSpec-Dashboard, alle 5s aktualisiert
 alias openspec-dash='watch -c -n 5 "FORCE_COLOR=1 openspec view"'
