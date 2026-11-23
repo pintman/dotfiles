@@ -3,21 +3,27 @@
 
 Reines Python-Stdlib. Standard: eine Anfrage, Trefferliste ausgeben.
 --open öffnet die Suche nur im Browser, --url gibt nur die URL aus.
+-v/--verfuegbar ruft zusätzlich pro Treffer Detailseite + Standorte ab.
 """
 
 import argparse
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 import webbrowser
 from html.parser import HTMLParser
+from http.cookiejar import CookieJar
 from urllib.parse import urlencode
 
 BASE_URL = "https://stadtbuecherei.bochum.de/suche"
 DETAIL_URL = "https://stadtbuecherei.bochum.de/results"
 AGENCY = "ADEBOCHUM"
 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/537.36 (KHTML, like Gecko)"
+MAX_VERFUEGBAR = 10  # Detail-Abrufe pro Suche (-v)
+PAUSE_S = 1.0  # Pause vor jedem Detail-Abruf
+MAX_WARTEN_S = 60  # längste Wartezeit bei HTTP 429 (-v)
 
 # Aus einer echten Browser-Suche übernommen: Bibliothek Bochum + Medienklasse "game".
 SPIEL_FILTER = (
@@ -115,16 +121,93 @@ def parse_results(html: str) -> tuple[int, list[dict[str, str]]]:
     return total, parser.spiele
 
 
-def fetch(url: str) -> str:
-    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+class _HoldingsParser(HTMLParser):
+    """Sammelt Standorte aus dem Wicket-AJAX-Fragment der Detailseite."""
+
+    FELDER = {
+        "arena-holding-link": "standort",
+        "arena-holding-shelf-mark": "signatur",
+        "arena-holding-nof-total": "gesamt",
+        "arena-holding-first-loan-due-date": "rueckgabe",
+        "arena-availability-right": "status",
+    }
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.stack: list[set[str]] = []
+        self.standorte: list[dict[str, str]] = []
+
+    def handle_starttag(self, tag, attrs):
+        classes = set((dict(attrs).get("class") or "").split())
+        if "arena-holding-container" in classes:
+            self.standorte.append({feld: "" for feld in self.FELDER.values()})
+        if tag not in VOID_TAGS:
+            self.stack.append(classes)
+
+    def handle_endtag(self, tag):
+        if tag not in VOID_TAGS and self.stack:
+            self.stack.pop()
+
+    def handle_data(self, data):
+        text = data.strip()
+        if not text or not self.standorte:
+            return
+        offen = set().union(*self.stack) if self.stack else set()
+        if "arena-field" in offen:
+            return
+        for klasse, feld in self.FELDER.items():
+            if klasse in offen:
+                eintrag = self.standorte[-1]
+                eintrag[feld] = f"{eintrag[feld]} {text}".strip()
+                return
+
+
+def parse_summary(html: str) -> dict[str, str]:
+    """Zusammenfassung der Detailseite: Anzahl verfügbar und Vormerkungen."""
+    ergebnis = {}
+    for klasse, feld in (("arena-availsummary-loans", "verfuegbar"),
+                         ("arena-availsummary-reservations", "vormerkungen")):
+        match = re.search(rf'class="{klasse}">.*?class="arena-value">([^<]*)<', html, re.S)
+        ergebnis[feld] = match.group(1).strip() if match else ""
+    return ergebnis
+
+
+def holdings_url(html: str) -> str | None:
+    """AJAX-URL des Standort-Panels (wird im Browser per JavaScript nachgeladen)."""
+    match = re.search(r'wicketAjaxGet\("([^"]*holdingsPanel[^"]*)"', html)
+    if not match:
+        return None
+    return re.sub(r"\\x([0-9a-fA-F]{2})", lambda m: chr(int(m.group(1), 16)), match.group(1))
+
+
+def parse_holdings(xml: str) -> list[dict[str, str]]:
+    parser = _HoldingsParser()
+    for teil in re.findall(r"<!\[CDATA\[(.*?)\]\]>", xml, re.S):
+        parser.feed(teil)
+    return parser.standorte
+
+
+_OPENER = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(CookieJar()))
+AJAX_HEADERS = {"Wicket-Ajax": "true", "X-Requested-With": "XMLHttpRequest"}
+
+
+class Gedrosselt(Exception):
+    """HTTP 429; wait = Retry-After in Sekunden (oder None)."""
+
+    def __init__(self, wait: int | None) -> None:
+        super().__init__(wait)
+        self.wait = wait
+
+
+def fetch(url: str, headers: dict[str, str] | None = None) -> str:
+    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, **(headers or {})})
     try:
-        with urllib.request.urlopen(request, timeout=30) as response:
+        with _OPENER.open(request, timeout=30) as response:
             return response.read().decode("utf-8", errors="replace")
     except urllib.error.HTTPError as err:
         if err.code == 429:
-            wait = err.headers.get("Retry-After", "?")
-            sys.exit(f"Katalog drosselt Anfragen (HTTP 429). Bitte in {wait} s erneut versuchen "
-                     f"oder im Browser öffnen:\n{url}")
+            wait = err.headers.get("Retry-After", "")
+            raise Gedrosselt(int(wait) if wait.isdigit() else None) from None
         sys.exit(f"HTTP-Fehler {err.code} beim Abruf von {url}")
     except urllib.error.URLError as err:
         sys.exit(f"Netzwerkfehler: {err.reason}")
@@ -143,6 +226,48 @@ def format_spiel(spiel: dict[str, str]) -> str:
     return zeile
 
 
+def verfuegbarkeit(record_id: str) -> dict:
+    """Detailseite + Standort-Panel abrufen (gleiche Session wegen Wicket)."""
+    html = fetch(detail_url(record_id))
+    info = {**parse_summary(html), "standorte": []}
+    url = holdings_url(html)
+    if url:
+        info["standorte"] = parse_holdings(fetch(url, AJAX_HEADERS))
+    return info
+
+
+def verfuegbarkeit_mit_retry(record_id: str) -> dict | None:
+    """Bei HTTP 429 einmal Retry-After abwarten (max. MAX_WARTEN_S), sonst None."""
+    try:
+        return verfuegbarkeit(record_id)
+    except Gedrosselt as err:
+        wait = err.wait if err.wait is not None else MAX_WARTEN_S
+        if wait > MAX_WARTEN_S:
+            return None
+        print(f"  (Katalog drosselt, warte {wait} s …)", file=sys.stderr, flush=True)
+        time.sleep(wait)
+        try:
+            return verfuegbarkeit(record_id)
+        except Gedrosselt:
+            return None
+
+
+def format_verfuegbarkeit(info: dict) -> str:
+    zeilen = []
+    for ort in info["standorte"]:
+        zeile = f"  {ort['standort'] or '?'}"
+        if ort["signatur"]:
+            zeile += f", {ort['signatur']}"
+        zeile += f": {ort['status'] or '?'}"
+        if ort["rueckgabe"]:
+            zeile += f" (Rückgabe {ort['rueckgabe']})"
+        zeilen.append(zeile)
+    if not zeilen:  # Fallback: nur Zusammenfassung
+        zeilen.append(f"  Verfügbar: {info['verfuegbar'] or '?'}")
+    zeilen[-1] += f" · Vormerkungen: {info['vormerkungen'] or '?'}"
+    return "\n".join(zeilen)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Brettspiele im Katalog der Stadtbücherei Bochum suchen.")
@@ -150,6 +275,8 @@ def main() -> None:
     parser.add_argument("--open", action="store_true",
                         help="Suche nur im Browser öffnen, nichts abrufen")
     parser.add_argument("--url", action="store_true", help="Nur die Such-URL ausgeben")
+    parser.add_argument("-v", "--verfuegbar", action="store_true",
+                        help=f"Verfügbarkeit/Standort je Treffer abrufen (max. {MAX_VERFUEGBAR})")
     args = parser.parse_args()
 
     url = build_url(" ".join(args.begriff))
@@ -161,16 +288,32 @@ def main() -> None:
         webbrowser.open(url)
         return
 
-    total, spiele = parse_results(fetch(url))
+    try:
+        total, spiele = parse_results(fetch(url))
+    except Gedrosselt as err:
+        sys.exit(f"Katalog drosselt Anfragen (HTTP 429). Bitte in {err.wait or '?'} s erneut "
+                 f"versuchen oder im Browser öffnen:\n{url}")
     if not spiele:
         print("Keine Spiele gefunden.")
         return
     print(f"{total} Treffer:")
-    for spiel in spiele:
+    abfragen = args.verfuegbar
+    for nr, spiel in enumerate(spiele):
         print(format_spiel(spiel))
+        if abfragen and spiel["id"] and nr < MAX_VERFUEGBAR:
+            time.sleep(PAUSE_S)  # Katalog drosselt schnelle Folgeanfragen
+            info = verfuegbarkeit_mit_retry(spiel["id"])
+            if info is None:
+                abfragen = False
+                print("  Verfügbarkeit: Katalog drosselt (HTTP 429) – ab hier Detail-Link nutzen.")
+            else:
+                print(format_verfuegbarkeit(info))
     if total > len(spiele):
         print(f"\n… {total - len(spiele)} weitere auf der Website:\n{url}")
-    print("\nVerfügbarkeit: siehe Detail-Link.")
+    if not args.verfuegbar:
+        print("\nVerfügbarkeit: siehe Detail-Link (oder -v).")
+    elif abfragen and len(spiele) > MAX_VERFUEGBAR:
+        print(f"\nVerfügbarkeit nur für die ersten {MAX_VERFUEGBAR} Treffer abgerufen.")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?><ajax-response><component id="id__crDetailWicket__WAR__arenaportlet____3" ><![CDATA[<div class="arena-availability-holdings clearfix" id="id__crDetailWicket__WAR__arenaportlet____3"><div>		
+            <div class="arena-holding-hyper-container" aria-live="polite" role="region" id="id__crDetailWicket__WAR__arenaportlet____9">
+        	<div class="arena-holding-container clearfix">        		
+	        	<a id="id__crDetailWicket__WAR__arenaportlet____a" href="https://stadtbuecherei.bochum.de/results?p_p_id=crDetailWicket_WAR_arenaportlet&amp;p_p_lifecycle=2&amp;p_p_state=normal&amp;p_p_mode=view&amp;p_p_resource_id=%2FcrDetailWicket%2F%3Fwicket%3Ainterface%3DcrDetailWicket_WAR_arenaportlet_LAYOUT_827978%3A0%3ArecordPanel%3AholdingsPanel%3Acontent%3AholdingsView%3A1%3AholdingContainer%3AtogglableLink%3A%3AILinkListener%3A%3A&amp;p_p_cacheability=cacheLevelPage" onclick="var wcall=wicketAjaxGet('https://stadtbuecherei.bochum.de/results?p_p_id=crDetailWicket_WAR_arenaportlet&amp;p_p_lifecycle=2&amp;p_p_state=normal&amp;p_p_mode=view&amp;p_p_resource_id=%2FcrDetailWicket%2F%3Fwicket%3Ainterface%3DcrDetailWicket_WAR_arenaportlet_LAYOUT_827978%3A0%3ArecordPanel%3AholdingsPanel%3Acontent%3AholdingsView%3A1%3AholdingContainer%3AtogglableLink%3A%3AIBehaviorListener%3A0%3A&amp;p_p_cacheability=cacheLevelPage',function() { }.bind(this),function() { }.bind(this), function() {return Wicket.$('id__crDetailWicket__WAR__arenaportlet____a') != null;}.bind(this));return !wcall;" aria-controls="id__crDetailWicket__WAR__arenaportlet____8" aria-label="Diese Option auswählen, um die Verfügbarkeit bei Zentralbücherei anzuzeigen" title="Diese Option auswählen, um die Verfügbarkeit bei Zentralbücherei anzuzeigen" role="button" aria-expanded="true">
+	        		<span id="id__crDetailWicket__WAR__arenaportlet____b" class="arena-holding-link arena-minus">Zentralbücherei</span>
+	        	</a>
+	        		        	
+	        	<a id="id__crDetailWicket__WAR__arenaportlet____c" style="display:none"></a>
+	        	<div class="arena-availability-right">
+	        		<span id="id__crDetailWicket__WAR__arenaportlet____d" style="display:none"></span>
+				</div>
+        	</div>
+        	<div class="arena-holding-feedback" id="id__crDetailWicket__WAR__arenaportlet____e">
+  
+</div>
+        	<div class="arena-reservation-panel" id="id__crDetailWicket__WAR__arenaportlet____f">
+</div>        
+        	<div class="arena-holding-child-hyper-container" id="id__crDetailWicket__WAR__arenaportlet____8">
+            	<div class="arena-holding-child-view">
+            		<div class="arena-holding-child-container">
+    <div class="arena-row-curve"></div>
+    <div class="arena-row">
+        <div class="arena-availability-details-container">
+            <!-- style="display: table" -->
+            <div class="arena-availability-details">
+                <!-- style="display: table-row-group" -->
+                <div>
+                    <!-- style="display: table-row" -->
+                    <div>
+                        <!-- style="display: table-cell"  -->
+                        
+                        
+                        
+                        
+                        <div class="arena-holding-shelf-mark">
+                            <span class="arena-field">Signatur:</span>
+                            <span class="arena-value">Spiel - Kenner</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- style="display: table" -->
+            <div class="arena-availability-note"  >
+                <!-- style="display: table-row" -->
+                <div>
+                    <!-- style="display: table-cell"  -->
+                    
+                </div>
+            </div>
+
+            <div class="arena-availability-info" >
+              <!-- style="display: table-row-group" -->
+                <div>
+                    <!-- style="display: table-row" -->
+                    <div>
+                        <!-- style="display: table-cell"  -->
+                        <div class="arena-holding-nof-total">
+                            <span class="arena-field">Gesamt</span>
+                            <span class="arena-value">1</span>
+                        </div>
+                        
+                        
+                        
+                        
+                        <div class="arena-holding-first-loan-due-date">
+                            <span class="arena-field">voraussichtliches Rückgabedatum:</span>
+                            <span class="arena-value">07.01.27</span>
+                        </div>
+                        
+                        
+                        
+                        
+                    </div>
+
+                    <!-- style="display: table-row" -->
+                    <div >
+                        <!-- style="display: table-cell"  -->
+                        <div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="arena-availability-right">
+            <span id="id__crDetailWicket__WAR__arenaportlet____10" class="notAvailable">Nicht verfügbar</span>
+        </div>
+    </div>
+    <div class="arena-row-curve"></div>
+</div>
+            	</div>
+            </div>
+        </div>
+        </div></div>]]></component></ajax-response>

@@ -81,5 +81,50 @@ class DetailUrlTest(unittest.TestCase):
         self.assertEqual(params["p_r_p_arena_urn:arena_agency_name"], ["ADEBOCHUM"])
 
 
+FIXTURES = Path(__file__).parent / "fixtures"
+DETAIL = (FIXTURES / "detail_duell.html").read_text(encoding="utf-8")
+HOLDINGS = (FIXTURES / "holdings_duell.xml").read_text(encoding="utf-8")
+
+
+class VerfuegbarkeitTest(unittest.TestCase):
+    def test_summary(self):
+        self.assertEqual(suche.parse_summary(DETAIL), {"verfuegbar": "0", "vormerkungen": "0"})
+
+    def test_summary_fehlt(self):
+        self.assertEqual(suche.parse_summary("<html></html>"),
+                         {"verfuegbar": "", "vormerkungen": ""})
+
+    def test_holdings_url_decodiert(self):
+        url = suche.holdings_url(DETAIL)
+        params = parse_qs(urlparse(url).query)
+        self.assertEqual(params["p_p_lifecycle"], ["2"])
+        self.assertIn("holdingsPanel", params["p_p_resource_id"][0])
+        self.assertNotIn("\\x", url)
+
+    def test_holdings_url_fehlt(self):
+        self.assertIsNone(suche.holdings_url("<html></html>"))
+
+    def test_parse_holdings(self):
+        self.assertEqual(suche.parse_holdings(HOLDINGS), [{
+            "standort": "Zentralbücherei",
+            "signatur": "Spiel - Kenner",
+            "gesamt": "1",
+            "rueckgabe": "07.01.27",
+            "status": "Nicht verfügbar",
+        }])
+
+    def test_format_mit_standort(self):
+        info = {"verfuegbar": "0", "vormerkungen": "0",
+                "standorte": suche.parse_holdings(HOLDINGS)}
+        self.assertEqual(suche.format_verfuegbarkeit(info),
+                         "  Zentralbücherei, Spiel - Kenner: Nicht verfügbar "
+                         "(Rückgabe 07.01.27) · Vormerkungen: 0")
+
+    def test_format_fallback_ohne_standorte(self):
+        info = {"verfuegbar": "2", "vormerkungen": "1", "standorte": []}
+        self.assertEqual(suche.format_verfuegbarkeit(info),
+                         "  Verfügbar: 2 · Vormerkungen: 1")
+
+
 if __name__ == "__main__":
     unittest.main()
