@@ -126,5 +126,47 @@ class VerfuegbarkeitTest(unittest.TestCase):
                          "  Verfügbar: 2 · Vormerkungen: 1")
 
 
+HERNE = (FIXTURES / "herne_auszug.txt").read_text(encoding="utf-8")
+
+
+class HerneTest(unittest.TestCase):
+    def setUp(self):
+        self.spiele = suche.parse_herne(HERNE)
+        self.nach_titel = {s["titel"]: s for s in self.spiele}
+
+    def test_kopfzeilen_uebersprungen_und_fortsetzung_zusammengefuehrt(self):
+        self.assertEqual(len(self.spiele), 12)
+        self.assertNotIn("Titel", self.nach_titel)
+
+    def test_vollstaendige_zeile(self):
+        self.assertEqual(self.nach_titel["6 nimmt - 1"], {
+            "titel": "6 nimmt - 1", "verlag": "Amigo", "alter": "10",
+            "spieltyp": "Kartenspiel", "spieler": "2-10", "jahr": "1994"})
+
+    def test_fehlende_spalten(self):
+        km = self.nach_titel["1000 Kilometer"]
+        self.assertEqual((km["verlag"], km["spieltyp"], km["alter"], km["jahr"]),
+                         ("Editions Edmond Dujardin", "Kartenspiel", "", ""))
+
+    def test_umgebrochene_zeile(self):
+        cn = self.nach_titel["Codenames"]
+        self.assertEqual((cn["verlag"], cn["alter"], cn["spieltyp"], cn["spieler"], cn["jahr"]),
+                         ("Heidelberger/Czech Games Edition", "14", "Wortspiel", "2-8+", "2015"))
+
+    def test_seitenumbruch(self):
+        self.assertEqual(self.nach_titel["ABC der Geographie"]["verlag"], "Berliner Spielkarten")
+
+    def test_suche_case_insensitiv_und_und_verknuepft(self):
+        titel = [s["titel"] for s in suche.suche_herne(self.spiele, "siedler CATAN 2")]
+        self.assertEqual(titel, ["Siedler von Catan - 2"])
+
+    def test_suche_im_verlag(self):
+        self.assertEqual(len(suche.suche_herne(self.spiele, "sun core")), 2)
+
+    def test_format(self):
+        self.assertEqual(suche.format_herne(self.nach_titel["Roots of Mali"]),
+                         "- Roots of Mali (2016) – Sun Core Games · Würfelspiel, ab 14, 2 Sp.")
+
+
 if __name__ == "__main__":
     unittest.main()

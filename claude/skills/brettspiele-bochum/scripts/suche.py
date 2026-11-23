@@ -1,20 +1,27 @@
 #!/usr/bin/env python3
-"""Baut eine Brettspiel-Suche im Katalog der Stadtbücherei Bochum (Axiell Arena).
+"""Sucht Brettspiele in der Stadtbücherei Bochum (Axiell Arena) und der Spieliothek Herne.
 
-Reines Python-Stdlib. Standard: eine Anfrage, Trefferliste ausgeben.
---open öffnet die Suche nur im Browser, --url gibt nur die URL aus.
--v/--verfuegbar ruft zusätzlich pro Treffer Detailseite + Standorte ab.
+Python-Stdlib; für Herne zusätzlich `pdftotext` (poppler).
+Bochum: eine Anfrage, Trefferliste; -v/--verfuegbar ruft pro Treffer Detailseite + Standorte ab.
+Herne: kein Online-Katalog, nur PDF-Gesamtliste (Stand 03/2018) → wird geladen, nach
+~/.cache/brettspiele/herne.txt konvertiert und lokal durchsucht (--update lädt neu).
+--open öffnet die Suche nur im Browser, --url gibt nur die URL(s) aus.
 """
 
 import argparse
 import re
+import shutil
+import ssl
+import subprocess
 import sys
+import tempfile
 import time
 import urllib.error
 import urllib.request
 import webbrowser
 from html.parser import HTMLParser
 from http.cookiejar import CookieJar
+from pathlib import Path
 from urllib.parse import urlencode
 
 BASE_URL = "https://stadtbuecherei.bochum.de/suche"
@@ -24,6 +31,11 @@ USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/537.36 (K
 MAX_VERFUEGBAR = 10  # Detail-Abrufe pro Suche (-v)
 PAUSE_S = 1.0  # Pause vor jedem Detail-Abruf
 MAX_WARTEN_S = 60  # längste Wartezeit bei HTTP 429 (-v)
+
+HERNE_PDF_URL = "https://spielezentrum.de/media/uploads/2018/03/SPO-Spiele-web.pdf"
+HERNE_CACHE = Path.home() / ".cache" / "brettspiele" / "herne.txt"
+HERNE_STAND = "03/2018"
+MAX_HERNE = 30  # ausgegebene Herne-Treffer
 
 # Aus einer echten Browser-Suche übernommen: Bibliothek Bochum + Medienklasse "game".
 SPIEL_FILTER = (
@@ -268,41 +280,155 @@ def format_verfuegbarkeit(info: dict) -> str:
     return "\n".join(zeilen)
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Brettspiele im Katalog der Stadtbücherei Bochum suchen.")
-    parser.add_argument("begriff", nargs="*", help="Suchbegriff, z. B. Catan (leer = alle Spiele)")
-    parser.add_argument("--open", action="store_true",
-                        help="Suche nur im Browser öffnen, nichts abrufen")
-    parser.add_argument("--url", action="store_true", help="Nur die Such-URL ausgeben")
-    parser.add_argument("-v", "--verfuegbar", action="store_true",
-                        help=f"Verfügbarkeit/Standort je Treffer abrufen (max. {MAX_VERFUEGBAR})")
-    args = parser.parse_args()
+# --- Spieliothek Herne (PDF-Gesamtliste) ---------------------------------------------------
 
-    url = build_url(" ".join(args.begriff))
-    if args.url:
-        print(url)
-        return
-    if args.open:
-        print(url)
-        webbrowser.open(url)
-        return
+_JAHR = re.compile(r"^\d{4}$")
+_ALTER = re.compile(r"^\d{2}")
+_SPIELER = re.compile(r"^[\d.+\-]+$")
 
+
+def _herne_felder(eintrag: dict[str, str], werte: list[str]) -> None:
+    """Spalten nach Alter/Spieltyp/Spieler/Jahr zuordnen (Spalten können fehlen)."""
+    werte = list(werte)
+    if werte and _JAHR.match(werte[-1]):
+        eintrag["jahr"] = werte.pop()
+    if werte and _ALTER.match(werte[0]):
+        eintrag["alter"] = werte.pop(0)
+    if werte and _SPIELER.match(werte[-1]):
+        eintrag["spieler"] = werte.pop()
+    if werte:
+        eintrag["spieltyp"] = " ".join(werte)
+
+
+def parse_herne(text: str) -> list[dict[str, str]]:
+    """pdftotext-Ausgabe (-layout) der Herne-Liste in Einträge zerlegen.
+
+    Spaltenbreiten variieren je Seite → Trennung an ≥ 2 Leerzeichen. Stark eingerückte Zeilen
+    sind Fortsetzungen (umgebrochene Spalten) des vorherigen Eintrags.
+    """
+    spiele: list[dict[str, str]] = []
+    for roh in text.splitlines():
+        roh = roh.replace("\f", "")
+        zeile = roh.strip()
+        if not zeile or zeile == "Spieliothek" or zeile.startswith("Titel "):
+            continue
+        felder = re.split(r"\s{2,}", zeile)
+        if len(roh) - len(roh.lstrip()) >= 10 and spiele:
+            _herne_felder(spiele[-1], felder)
+            continue
+        eintrag = {"titel": felder[0], "verlag": "", "alter": "", "spieltyp": "",
+                   "spieler": "", "jahr": ""}
+        if len(felder) > 1:
+            eintrag["verlag"] = felder[1]
+        _herne_felder(eintrag, felder[2:])
+        spiele.append(eintrag)
+    return spiele
+
+
+def suche_herne(spiele: list[dict[str, str]], begriff: str) -> list[dict[str, str]]:
+    """Alle Wörter müssen (ohne Groß-/Kleinschreibung) in Titel oder Verlag vorkommen."""
+    woerter = begriff.casefold().split()
+    return [s for s in spiele
+            if all(w in f"{s['titel']} {s['verlag']}".casefold() for w in woerter)]
+
+
+def format_herne(spiel: dict[str, str]) -> str:
+    zeile = f"- {spiel['titel']}"
+    if spiel["jahr"]:
+        zeile += f" ({spiel['jahr']})"
+    if spiel["verlag"]:
+        zeile += f" – {spiel['verlag']}"
+    details = [spiel["spieltyp"]]
+    if spiel["alter"]:
+        details.append(f"ab {spiel['alter']}")
+    if spiel["spieler"]:
+        details.append(f"{spiel['spieler']} Sp.")
+    details = [d for d in details if d]
+    if details:
+        zeile += " · " + ", ".join(details)
+    return zeile
+
+
+def herne_text(update: bool = False) -> str:
+    """Herne-Liste als Text (Cache, sonst PDF laden + pdftotext). Fehler → RuntimeError."""
+    if HERNE_CACHE.exists() and not update:
+        return HERNE_CACHE.read_text(encoding="utf-8")
+    if not shutil.which("pdftotext"):
+        raise RuntimeError("pdftotext fehlt (brew install poppler)")
+    # spielezentrum.de liefert ein Zertifikat für einen anderen Host (7wonders-turnier.de).
+    # Bewusst nur für diesen Abruf ohne Prüfung; es wird nur eine öffentliche PDF gelesen.
+    kontext = ssl.create_default_context()
+    kontext.check_hostname = False
+    kontext.verify_mode = ssl.CERT_NONE
+    request = urllib.request.Request(HERNE_PDF_URL, headers={"User-Agent": USER_AGENT})
+    print("(Lade Herne-Liste …)", file=sys.stderr, flush=True)
+    try:
+        with urllib.request.urlopen(request, timeout=120, context=kontext) as response:
+            pdf = response.read()
+    except (urllib.error.URLError, TimeoutError) as err:
+        raise RuntimeError(f"Abruf der Herne-Liste fehlgeschlagen: {err}") from None
+    with tempfile.TemporaryDirectory() as tmp:
+        pfad = Path(tmp) / "herne.pdf"
+        pfad.write_bytes(pdf)
+        ergebnis = subprocess.run(["pdftotext", "-layout", "-enc", "UTF-8", str(pfad), "-"],
+                                  capture_output=True, text=True, encoding="utf-8")
+    if ergebnis.returncode != 0:
+        raise RuntimeError(f"pdftotext fehlgeschlagen: {ergebnis.stderr.strip()}")
+    HERNE_CACHE.parent.mkdir(parents=True, exist_ok=True)
+    HERNE_CACHE.write_text(ergebnis.stdout, encoding="utf-8")
+    return ergebnis.stdout
+
+
+def ausgabe_herne(begriff: str, update: bool) -> None:
+    print(f"## Spieliothek Herne (Liste Stand {HERNE_STAND}, ohne Verfügbarkeit)")
+    if not begriff.strip():
+        print(f"Bestand zu groß für eine Liste ohne Suchbegriff – Gesamtliste: {HERNE_PDF_URL}")
+        return
+    try:
+        spiele = parse_herne(herne_text(update))
+    except RuntimeError as err:
+        print(f"Nicht durchsuchbar: {err}\nGesamtliste: {HERNE_PDF_URL}")
+        return
+    treffer = suche_herne(spiele, begriff)
+    if not treffer:
+        print("Keine Spiele gefunden (neuere Spiele fehlen in der Liste).")
+        return
+    print(f"{len(treffer)} Treffer:")
+    for spiel in treffer[:MAX_HERNE]:
+        print(format_herne(spiel))
+    if len(treffer) > MAX_HERNE:
+        print(f"… {len(treffer) - MAX_HERNE} weitere – Begriff eingrenzen.")
+
+
+# --- Stadtbücherei Bochum ------------------------------------------------------------------
+
+def ausgabe_bochum(begriff: str, verfuegbar: bool) -> None:
+    print("## Stadtbücherei Bochum")
+    url = build_url(begriff)
     try:
         total, spiele = parse_results(fetch(url))
     except Gedrosselt as err:
-        sys.exit(f"Katalog drosselt Anfragen (HTTP 429). Bitte in {err.wait or '?'} s erneut "
-                 f"versuchen oder im Browser öffnen:\n{url}")
+        print(f"Katalog drosselt Anfragen (HTTP 429). Bitte in {err.wait or '?'} s erneut "
+              f"versuchen oder im Browser öffnen:\n{url}")
+        return
+    except SystemExit as err:  # Netzwerk-/HTTP-Fehler aus fetch
+        print(err.code)
+        return
     if not spiele:
         print("Keine Spiele gefunden.")
         return
     print(f"{total} Treffer:")
-    abfragen = args.verfuegbar
+    abfragen = verfuegbar
     for nr, spiel in enumerate(spiele):
         print(format_spiel(spiel))
         if abfragen and spiel["id"] and nr < MAX_VERFUEGBAR:
             time.sleep(PAUSE_S)  # Katalog drosselt schnelle Folgeanfragen
-            info = verfuegbarkeit_mit_retry(spiel["id"])
+            try:
+                info = verfuegbarkeit_mit_retry(spiel["id"])
+            except SystemExit as err:
+                abfragen = False
+                print(f"  Verfügbarkeit: {err.code}")
+                continue
             if info is None:
                 abfragen = False
                 print("  Verfügbarkeit: Katalog drosselt (HTTP 429) – ab hier Detail-Link nutzen.")
@@ -310,10 +436,44 @@ def main() -> None:
                 print(format_verfuegbarkeit(info))
     if total > len(spiele):
         print(f"\n… {total - len(spiele)} weitere auf der Website:\n{url}")
-    if not args.verfuegbar:
+    if not verfuegbar:
         print("\nVerfügbarkeit: siehe Detail-Link (oder -v).")
     elif abfragen and len(spiele) > MAX_VERFUEGBAR:
         print(f"\nVerfügbarkeit nur für die ersten {MAX_VERFUEGBAR} Treffer abgerufen.")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Brettspiele in der Stadtbücherei Bochum und der Spieliothek Herne suchen.")
+    parser.add_argument("begriff", nargs="*", help="Suchbegriff, z. B. Catan (leer = alle Spiele)")
+    parser.add_argument("--nur", choices=["bochum", "herne"], help="nur eine Bibliothek durchsuchen")
+    parser.add_argument("--open", action="store_true",
+                        help="Suche nur im Browser öffnen, nichts abrufen")
+    parser.add_argument("--url", action="store_true", help="Nur die Such-URL(s) ausgeben")
+    parser.add_argument("-v", "--verfuegbar", action="store_true",
+                        help=f"Bochum: Verfügbarkeit/Standort je Treffer abrufen "
+                             f"(max. {MAX_VERFUEGBAR})")
+    parser.add_argument("--update", action="store_true", help="Herne-Liste neu herunterladen")
+    args = parser.parse_args()
+
+    begriff = " ".join(args.begriff)
+    bochum = args.nur in (None, "bochum")
+    herne = args.nur in (None, "herne")
+
+    if args.url or args.open:
+        urls = ([build_url(begriff)] if bochum else []) + ([HERNE_PDF_URL] if herne else [])
+        for url in urls:
+            print(url)
+            if args.open:
+                webbrowser.open(url)
+        return
+
+    if bochum:
+        ausgabe_bochum(begriff, args.verfuegbar)
+    if bochum and herne:
+        print()
+    if herne:
+        ausgabe_herne(begriff, args.update)
 
 
 if __name__ == "__main__":
