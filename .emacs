@@ -17,7 +17,23 @@
 ; change default settings (font, size) on Mac
 (if (eq system-type 'darwin)
     (setq default-frame-alist
-	  '((font . "Menlo-14") (width . 150))))
+	  '((font . "Menlo-14"))))
+
+; Emacs.app beim Start auf die rechte Bildschirmhälfte legen
+(defun my/frame-right-half (&optional frame)
+  "FRAME auf die rechte Hälfte des Monitor-Arbeitsbereichs legen."
+  (interactive)
+  (let ((frame (or frame (selected-frame))))
+    (when (display-graphic-p frame)
+      (let* ((wa (frame-monitor-workarea frame)) ; (x y breite höhe)
+             (half (/ (nth 2 wa) 2))
+             ;; Rahmen/Titelleiste abziehen, da set-frame-size die Textfläche setzt
+             (dw (- (frame-outer-width frame) (frame-text-width frame)))
+             (dh (- (frame-outer-height frame) (frame-text-height frame))))
+        (set-frame-position frame (+ (nth 0 wa) half) (nth 1 wa))
+        (set-frame-size frame (- half dw) (- (nth 3 wa) dh) t)))))
+(when (eq system-type 'darwin)
+  (add-hook 'window-setup-hook #'my/frame-right-half))
 ; https://www.perplexity.ai/search/mac-os-keyboard-insert-bracket-Czg2z_aSQ_uXztTOkzjbVQ
 ; make [] and {} under MacOS 
 (setq mac-option-modifier nil
